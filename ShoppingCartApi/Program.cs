@@ -9,11 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add CORS policy
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(builder =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        builder.WithOrigins("https://localhost:5002") // Port where Blazor is running
-               .AllowAnyMethod()
-               .AllowAnyHeader();
+        policy.AllowAnyOrigin()       
+              .AllowAnyMethod()       
+              .AllowAnyHeader();      
     });
 });
 
@@ -28,9 +28,15 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+// Seed the database with default products during startup
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ShoppingCartContext>();
+    ShoppingCartContext.SeedData(dbContext); // Call the seed method
+}
 
 // Use the CORS policy
-app.UseCors();
+app.UseCors("AllowAll");
 
 // Enable Swagger and Swagger UI
 app.UseSwagger();

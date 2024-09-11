@@ -22,7 +22,18 @@
                 "${workspaceFolder}/ShoppingCartApp/ShoppingCartApp.csproj"
             ],
             "problemMatcher": "$msCompile"
-		}
+		},
+        {
+            "label": "build ShoppingCartWeb",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/ShoppingCartWeb/ShoppingCartWeb.csproj"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "build"
+        }
       
     ]
 }

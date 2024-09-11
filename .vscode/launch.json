@@ -11,6 +11,26 @@
     ],
     "configurations": [
         {
+            "name": "ShoppingCartWeb",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build ShoppingCartWeb",  // Ensures ShoppingCartWeb is built before launch
+            "program": "${workspaceFolder}/ShoppingCartWeb/bin/Debug/net8.0/ShoppingCartWeb.dll",  // Path to ASP.NET Core Web App
+            "args": [],
+            "cwd": "${workspaceFolder}/ShoppingCartWeb",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"  // This will open the app in your default browser
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        },
+        {
             "name": "CartApp",
             "type": "blazorwasm",
             "request": "launch",
