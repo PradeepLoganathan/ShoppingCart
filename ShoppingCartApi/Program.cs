@@ -96,13 +96,32 @@ app.MapGet("/cart/{id}", async (int id, ShoppingCartContext db) =>
 // POST add item to cart
 app.MapPost("/cart", async (CartItem cartItem, ShoppingCartContext db) =>
 {
+     // Find the product in the database using the ProductId
     var product = await db.Products.FindAsync(cartItem.ProductId);
     if (product == null)
     {
         return Results.NotFound("Product not found");
     }
 
-    db.CartItems.Add(cartItem);
+    // Associate the tracked product with the cart item
+    cartItem.Product = product;
+
+    // Check if the cart item for this product already exists in the cart
+    var existingCartItem = await db.CartItems
+        .FirstOrDefaultAsync(c => c.ProductId == cartItem.ProductId);
+
+    if (existingCartItem != null)
+    {
+        // If it exists, just update the quantity
+        existingCartItem.Quantity += cartItem.Quantity;
+    }
+    else
+    {
+        // If it doesn't exist, add the new cart item
+        db.CartItems.Add(cartItem);
+    }
+
+    // Save the changes
     await db.SaveChangesAsync();
 
     return Results.Created($"/cart/{cartItem.Id}", cartItem);
