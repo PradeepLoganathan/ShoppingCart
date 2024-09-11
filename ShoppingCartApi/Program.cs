@@ -4,6 +4,7 @@ using ShoppingCartApi.Data;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add CORS policy
@@ -79,6 +80,18 @@ app.MapDelete("/products/{id}", async (int id, ShoppingCartContext db) =>
     await db.SaveChangesAsync();
     return Results.NoContent();
 }).WithTags("Products");
+
+#region insecure
+// Insecure SQL Injection Endpoint
+// app.MapGet("/products/insecure/{productName}", async (string productName, ShoppingCartContext db) =>
+// {
+//     // Insecure: Directly concatenate user input into an SQL query (SQL Injection)
+//     var query = $"SELECT * FROM Products WHERE Name = '{productName}'";  // Vulnerable to SQL Injection
+//     var products = await db.Products.FromSqlRaw(query).ToListAsync();
+
+//     return products.Any() ? Results.Ok(products) : Results.NotFound();
+// }).WithTags("Products");
+#endregion
 
 // === Cart Endpoints (Grouped under 'Cart') === //
 
