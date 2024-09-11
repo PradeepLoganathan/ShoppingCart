@@ -1,0 +1,54 @@
+@page "/cart"
+@inject HttpClient Http
+
+<h3>Shopping Cart</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Subtotal</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (cartItems == null || !cartItems.Any())
+        {
+            <tr>
+                <td colspan="5">Your cart is empty.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var item in cartItems)
+            {
+                <tr>
+                    <td>@item.Product.Name</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Product.Price.ToString("C")</td>
+                    <td>@(item.Product.Price * item.Quantity).ToString("C")</td>
+                    <td>
+                        <button class="btn btn-danger" @onclick="() => RemoveFromCart(item.Id)">Remove</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<CartItem>? cartItems;
+
+    protected override async Task OnInitializedAsync()
+    {
+        cartItems = await Http.GetFromJsonAsync<List<CartItem>>("/cart");
+    }
+
+    private async Task RemoveFromCart(int cartItemId)
+    {
+        await Http.DeleteAsync($"/cart/{cartItemId}");
+        cartItems = await Http.GetFromJsonAsync<List<CartItem>>("/cart"); // Refresh cart items after deletion
+    }
+}

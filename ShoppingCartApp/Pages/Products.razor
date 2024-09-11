@@ -1,0 +1,58 @@
+@page "/products"
+@inject HttpClient Http
+
+<h3>Product List</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (products == null)
+        {
+            <tr>
+                <td colspan="3">Loading products...</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var product in products)
+            {
+                <tr>
+                    <td>@product.Name</td>
+                    <td>@product.Price.ToString("C")</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => AddToCart(product.Id)">Add to Cart</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Product>? products;
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await Http.GetFromJsonAsync<List<Product>>("/products");
+    }
+
+    private async Task AddToCart(int productId)
+    {
+        var cartItem = new CartItem
+        {
+            ProductId = productId,
+            Quantity = 1
+        };
+
+        // Call the API to add the product to the cart
+        await Http.PostAsJsonAsync("/cart", cartItem);
+        // Optionally, you can display a success message or feedback
+        Console.WriteLine($"Product with ID {productId} added to cart.");
+    }
+}

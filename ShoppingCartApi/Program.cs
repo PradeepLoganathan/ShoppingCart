@@ -6,8 +6,21 @@ using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.WithOrigins("https://localhost:5002") // Port where Blazor is running
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
+
+
 // Add services for EF Core and Swagger
 builder.Services.AddDbContext<ShoppingCartContext>(opt => opt.UseInMemoryDatabase("ShoppingCartDb"));
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -15,6 +28,9 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+// Use the CORS policy
+app.UseCors();
 
 // Enable Swagger and Swagger UI
 app.UseSwagger();
