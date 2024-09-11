@@ -31,7 +31,8 @@ namespace ShoppingCartWeb.Controllers
 
             if (product == null)
             {
-                return NotFound("Product not found");
+                TempData["Message"] = "Product not found";
+                return RedirectToAction("Index");
             }
 
             // Create the CartItem object to send to the API
@@ -47,12 +48,14 @@ namespace ShoppingCartWeb.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                return RedirectToAction("Index");  // Redirect back to the products page
+                TempData["Message"] = "Item added to cart!";
             }
             else
             {
-                return StatusCode((int)response.StatusCode, "Error adding product to cart");
+               TempData["Message"] = "Failed to add item to cart.";
             }
+
+            return RedirectToAction("Index");
         }
     }
 }
