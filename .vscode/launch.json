@@ -26,6 +26,7 @@
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             },
+            "launchSettingsProfile": "http",
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
             }
