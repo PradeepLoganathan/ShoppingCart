@@ -1,0 +1,127 @@
+@baseUrl = http://localhost:5022
+
+# === Products Endpoints ===
+
+### List all products
+GET {{baseUrl}}/products
+Accept: application/json
+
+###
+
+### Get a specific product by ID (Laptop)
+GET {{baseUrl}}/products/1
+Accept: application/json
+
+###
+
+### Add a new product (Laptop - Dell XPS 13)
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "name": "Dell XPS 13",
+  "price": 999.99
+}
+
+###
+
+### Add a new product (Desktop - HP Omen 25L)
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "name": "HP Omen 25L",
+  "price": 1299.00
+}
+
+###
+
+### Add a new product (Laptop - MacBook Pro 16-inch)
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "name": "MacBook Pro 16-inch",
+  "price": 2499.00
+}
+
+###
+
+### Get a specific product by ID (Desktop)
+GET {{baseUrl}}/products/2
+Accept: application/json
+
+###
+
+### List all products after adding
+GET {{baseUrl}}/products
+Accept: application/json
+
+###
+
+### Delete a product by ID (Delete MacBook Pro 16-inch)
+DELETE {{baseUrl}}/products/3
+
+###
+
+# === Cart Endpoints ===
+
+### List all cart items
+GET {{baseUrl}}/cart
+Accept: application/json
+
+###
+
+### Add Dell XPS 13 to the cart (productId 1)
+POST {{baseUrl}}/cart
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "quantity": 2
+}
+
+###
+
+### Add HP Omen 25L to the cart (productId 2)
+POST {{baseUrl}}/cart
+Content-Type: application/json
+
+{
+  "productId": 2,
+  "quantity": 10
+}
+
+###
+
+### Add MacBook Pro 16-inch to the cart (productId 3)
+POST {{baseUrl}}/cart
+Content-Type: application/json
+
+{
+  "productId": 3,
+  "quantity": 1
+}
+
+###
+
+### Get all cart items after adding
+GET {{baseUrl}}/cart
+Accept: application/json
+
+###
+
+### Get a specific cart item by ID
+GET {{baseUrl}}/cart/1
+Accept: application/json
+
+###
+
+### Delete a specific cart item by ID (Remove HP Omen 25L from the cart)
+DELETE {{baseUrl}}/cart/2
+
+###
+
+### List all cart items after deletion
+GET {{baseUrl}}/cart
+Accept: application/json

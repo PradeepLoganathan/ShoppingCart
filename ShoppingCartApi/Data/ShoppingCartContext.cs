@@ -7,7 +7,7 @@ namespace ShoppingCartApi.Data
     {
         public ShoppingCartContext(DbContextOptions<ShoppingCartContext> options) : base(options) { }
 
-        public DbSet<Product> Products { get; set; }
-        public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<Product> Products => Set<Product>();
+        public DbSet<CartItem> CartItems => Set<CartItem>();
     }
 }

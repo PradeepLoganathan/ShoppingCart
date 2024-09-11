@@ -1,23 +1,78 @@
 using Microsoft.EntityFrameworkCore;
 using ShoppingCartApi.Models;
 using ShoppingCartApi.Data;
+using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services for EF Core and Swagger
 builder.Services.AddDbContext<ShoppingCartContext>(opt => opt.UseInMemoryDatabase("ShoppingCartDb"));
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "ShoppingCartApi", Version = "v1" });
+});
 
 var app = builder.Build();
 
+// Enable Swagger and Swagger UI
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// GET all products
-app.MapGet("/api/cart/products", async (ShoppingCartContext db) => await db.Products.ToListAsync());
+// Redirect root "/" to "/swagger"
+app.MapGet("/", () => Results.Redirect("/swagger"));
 
-// POST add product to cart
-app.MapPost("/api/cart/add", async (CartItem cartItem, ShoppingCartContext db) =>
+// === Product Endpoints (Grouped under 'Products') === //
+
+// GET all products
+app.MapGet("/products", async (ShoppingCartContext db) => await db.Products.ToListAsync())
+    .WithTags("Products");
+
+// GET specific product by ID
+app.MapGet("/products/{id}", async (int id, ShoppingCartContext db) =>
+{
+    var product = await db.Products.FindAsync(id);
+    return product is not null ? Results.Ok(product) : Results.NotFound();
+}).WithTags("Products");
+
+// POST add new product
+app.MapPost("/products", async (Product product, ShoppingCartContext db) =>
+{
+    db.Products.Add(product);
+    await db.SaveChangesAsync();
+    return Results.Created($"/products/{product.Id}", product);
+}).WithTags("Products");
+
+// DELETE specific product by ID
+app.MapDelete("/products/{id}", async (int id, ShoppingCartContext db) =>
+{
+    var product = await db.Products.FindAsync(id);
+    if (product is null)
+    {
+        return Results.NotFound();
+    }
+
+    db.Products.Remove(product);
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+}).WithTags("Products");
+
+// === Cart Endpoints (Grouped under 'Cart') === //
+
+// GET all cart items
+app.MapGet("/cart", async (ShoppingCartContext db) => await db.CartItems.Include(c => c.Product).ToListAsync())
+    .WithTags("Cart");
+
+// GET specific cart item by ID
+app.MapGet("/cart/{id}", async (int id, ShoppingCartContext db) =>
+{
+    var cartItem = await db.CartItems.Include(c => c.Product).FirstOrDefaultAsync(c => c.Id == id);
+    return cartItem is not null ? Results.Ok(cartItem) : Results.NotFound();
+}).WithTags("Cart");
+
+// POST add item to cart
+app.MapPost("/cart", async (CartItem cartItem, ShoppingCartContext db) =>
 {
     var product = await db.Products.FindAsync(cartItem.ProductId);
     if (product == null)
@@ -28,39 +83,21 @@ app.MapPost("/api/cart/add", async (CartItem cartItem, ShoppingCartContext db) =
     db.CartItems.Add(cartItem);
     await db.SaveChangesAsync();
 
-    return Results.Ok(cartItem);
-});
+    return Results.Created($"/cart/{cartItem.Id}", cartItem);
+}).WithTags("Cart");
 
-// GET all cart items
-app.MapGet("/api/cart/all", async (ShoppingCartContext db) => await db.CartItems.Include(c => c.Product).ToListAsync());
-
-// DELETE remove cart item
-app.MapDelete("/api/cart/remove/{id}", async (int id, ShoppingCartContext db) =>
+// DELETE specific cart item by ID
+app.MapDelete("/cart/{id}", async (int id, ShoppingCartContext db) =>
 {
     var cartItem = await db.CartItems.FindAsync(id);
-    if (cartItem == null)
+    if (cartItem is null)
     {
         return Results.NotFound();
     }
 
     db.CartItems.Remove(cartItem);
     await db.SaveChangesAsync();
-
-    return Results.Ok();
-});
-
-// Seed initial products
-app.MapPost("/api/cart/seed", async (ShoppingCartContext db) =>
-{
-    if (!db.Products.Any())
-    {
-        db.Products.AddRange(
-            new Product { Name = "Product A", Price = 10 },
-            new Product { Name = "Product B", Price = 20 }
-        );
-        await db.SaveChangesAsync();
-    }
-    return Results.Ok("Seeded");
-});
+    return Results.NoContent();
+}).WithTags("Cart");
 
 app.Run();
