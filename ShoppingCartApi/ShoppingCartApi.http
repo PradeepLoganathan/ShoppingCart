@@ -1,6 +1,57 @@
 @ShoppingCartApi_HostAddress = http://localhost:5022
 
-GET {{ShoppingCartApi_HostAddress}}/weatherforecast/
+### Get All Cart Items
+GET {{ShoppingCartApi_HostAddress}}/cart
+Accept: application/json
+
+###
+
+### Get Cart Item by ID
+GET {{ShoppingCartApi_HostAddress}}/cart/1
+Accept: application/json
+
+###
+
+### Add an Item to Cart
+POST {{ShoppingCartApi_HostAddress}}/cart
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "productName": "Sample Product",
+  "productPrice": 49.99,
+  "quantity": 1
+}
+
+### Add an Item to Cart
+POST {{ShoppingCartApi_HostAddress}}/cart
+Content-Type: application/json
+
+{
+  "productId": 2,
+  "productName": "second Sample Product",
+  "productPrice": 49.99,
+  "quantity": 1
+}
+
+
+###
+
+### Add the Same Item Again (to Test Quantity Update)
+POST {{ShoppingCartApi_HostAddress}}/cart
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "productName": "Sample Product",
+  "productPrice": 49.99,
+  "quantity": 2
+}
+
+###
+
+### Remove an Item from Cart by ID
+DELETE {{ShoppingCartApi_HostAddress}}/cart/1
 Accept: application/json
 
 ###

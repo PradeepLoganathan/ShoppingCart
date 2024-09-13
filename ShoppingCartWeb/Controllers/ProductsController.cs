@@ -29,50 +29,38 @@ namespace ShoppingCartWeb.Controllers
         [HttpPost]
         public async Task<IActionResult> AddToCart(int id)
         {
-            try
+            var productClient = _httpClientFactory.CreateClient("ProductApiClient");
+            var product = await productClient.GetFromJsonAsync<Product>($"/products/{id}");
+
+            if (product == null)
             {
-                var productClient = _httpClientFactory.CreateClient("ProductApiClient");
-                var cartClient = _httpClientFactory.CreateClient("CartApiClient");
-
-                // Fetch the product details from the Product API
-                var product = await productClient.GetFromJsonAsync<Product>($"/products/{id}");
-
-                if (product == null)
-                {
-                    TempData["Message"] = "Product not found";
-                    return RedirectToAction("Index");
-                }
-
-                // Create the CartItem object to send to the Cart API
-                var cartItem = new CartItem
-                {
-                    ProductId = product.Id,
-                    Product = product,
-                    Quantity = 1  // Default quantity
-                };
-
-                // Post the cart item to the Cart API's /cart endpoint
-                var response = await cartClient.PostAsJsonAsync("/cart", cartItem);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    TempData["Message"] = "Item added to cart!";
-                }
-                else
-                {
-                    TempData["Message"] = $"Failed to add item to cart. Status Code: {response.StatusCode}";
-                }
-
+                TempData["Message"] = "Product not found";
                 return RedirectToAction("Index");
             }
-            catch (Exception ex)
+
+            var cartItem = new CartItem
             {
-                // Log the exception (using your preferred logging framework)
-                // For example: _logger.LogError(ex, "Error adding item to cart");
-                TempData["Message"] = "An unexpected error occurred.";
-                return RedirectToAction("Index");
+                ProductId = product.Id,
+                ProductName = product.Name,
+                ProductPrice = product.Price,
+                Quantity = 1  // Default quantity
+            };
+
+            var cartClient = _httpClientFactory.CreateClient("CartApiClient");
+            var response = await cartClient.PostAsJsonAsync("/cart", cartItem);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Message"] = "Item added to cart!";
             }
+            else
+            {
+                TempData["Message"] = "Failed to add item to cart.";
+            }
+
+            return RedirectToAction("Index");
         }
+
     }
 
 }

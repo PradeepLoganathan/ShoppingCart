@@ -22,13 +22,11 @@ else
             @foreach (var item in Model)
             {
                 <tr>
-                    <td>@item.Product.Name</td>
+                    <td>@item.ProductName</td>
                     <td>@item.Quantity</td>
-                    <td>@item.Product.Price.ToString("C")</td> <!-- Format Price as Currency -->
-                    <td>@((item.Product.Price * item.Quantity).ToString("C"))</td> <!-- Correct way to format the total -->
-
+                    <td>@item.ProductPrice.ToString("C")</td>
+                    <td>@(item.ProductPrice * item.Quantity).ToString("C")</td>
                     <td>
-                        <!-- Remove from Cart button -->
                         <form method="post" asp-action="RemoveFromCart" asp-route-id="@item.CartItemId">
                             <button type="submit" class="btn btn-danger">Remove</button>
                         </form>
@@ -38,7 +36,7 @@ else
         </tbody>
     </table>
 
-    <h3>Total Cost: @ViewBag.CartTotal.ToString("C")</h3> <!-- Format Total Cost as Currency -->
+    <h3>Total Cost: @Model.Sum(item => item.ProductPrice * item.Quantity).ToString("C")</h3>
 
     <a href="/Products" class="btn btn-primary">Continue Shopping</a>
 }

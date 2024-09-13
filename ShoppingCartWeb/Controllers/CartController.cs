@@ -26,23 +26,20 @@ namespace ShoppingCartWeb.Controllers
             try
             {
                 var cartClient = _httpClientFactory.CreateClient("CartApiClient");
-
-                // Fetch cart items from the Cart API
                 var cartItems = await cartClient.GetFromJsonAsync<List<CartItem>>("/cart");
 
-                // Calculate the total cost
-                var cartTotal = cartItems?.Sum(item => item.Product.Price * item.Quantity) ?? 0;
+                var cartTotal = cartItems?.Sum(item => item.ProductPrice * item.Quantity) ?? 0;
                 ViewBag.CartTotal = cartTotal;
 
                 return View(cartItems);
             }
             catch (Exception ex)
             {
-                // Log the exception (e.g., using ILogger)
                 TempData["ErrorMessage"] = "An error occurred while fetching your cart.";
                 return RedirectToAction("Index", "Home");
             }
         }
+
 
 
         // Remove an item from the cart via the API
