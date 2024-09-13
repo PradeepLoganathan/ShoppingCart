@@ -1,0 +1,921 @@
+{
+  "vulnerabilities": [
+    {
+      "id": "SNYK-DOTNET-NEWTONSOFTJSON-2774678",
+      "title": "Insecure Defaults",
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H/E:P",
+      "credit": [
+        "Gil Mirmovitch"
+      ],
+      "semver": {
+        "vulnerable": [
+          "[,13.0.1)"
+        ]
+      },
+      "exploit": "Proof of Concept",
+      "fixedIn": [
+        "13.0.1"
+      ],
+      "patches": [],
+      "insights": {
+        "triageAdvice": null
+      },
+      "language": "dotnet",
+      "severity": "high",
+      "cvssScore": 7.5,
+      "functions": [],
+      "malicious": false,
+      "isDisputed": false,
+      "moduleName": "newtonsoft.json",
+      "references": [
+        {
+          "url": "https://github.com/JamesNK/Newtonsoft.Json/commit/7e77bbe1beccceac4fc7b174b53abfefac278b66",
+          "title": "GitHub Commit"
+        },
+        {
+          "url": "https://github.com/JamesNK/Newtonsoft.Json/issues/2457",
+          "title": "GitHub Issue"
+        },
+        {
+          "url": "https://github.com/JamesNK/Newtonsoft.Json/pull/2462",
+          "title": "GitHub PR"
+        },
+        {
+          "url": "https://alephsecurity.com/vulns/aleph-2018004",
+          "title": "Security Advisory"
+        },
+        {
+          "url": "https://alephsecurity.com/2018/10/22/StackOverflowException/",
+          "title": "Security Article"
+        }
+      ],
+      "cvssDetails": [
+        {
+          "assigner": "NVD",
+          "severity": "high",
+          "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+          "cvssV3BaseScore": 7.5,
+          "modificationTime": "2024-03-11T09:49:30.699485Z"
+        }
+      ],
+      "cvssSources": [
+        {
+          "type": "primary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H/E:P",
+          "assigner": "Snyk",
+          "severity": "high",
+          "baseScore": 7.5,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-06T14:09:36.336651Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+          "assigner": "NVD",
+          "severity": "high",
+          "baseScore": 7.5,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-11T09:49:30.699485Z"
+        }
+      ],
+      "description": "## Overview\n\nAffected versions of this package are vulnerable to Insecure Defaults due to improper handling of StackOverFlow exception (SOE) whenever nested expressions are being processed.\n## PoC\n```dotnet\r\n\r\nusing System;\r\n\r\nusing System.IO;\r\nusing System.Linq;\r\nusing Newtonsoft.Json;\r\nusing Newtonsoft.Json.Linq;\r\n\r\nnamespace JsonTests\r\n{\r\n    class Program\r\n    {\r\n        static void Main(string[] args)\r\n        {\r\n            //Create a string representation of a highly nested object (JSON serialized)\r\n            int nRep = 24000;\r\n            string json = string.Concat(Enumerable.Repeat(\"{a:\", nRep)) + \"1\" +\r\n                          string.Concat(Enumerable.Repeat(\"}\", nRep));\r\n\r\n            //Parse this object (Parsing works well - no exception is being thrown)\r\n            var parsedJson = JObject.Parse(json);\r\n            \r\n            using (var ms = new MemoryStream())\r\n            using (var sWriter = new StreamWriter(ms))\r\n            using (var jWriter = new JsonTextWriter(sWriter))\r\n            {\r\n                //Trying to serialize the object will result in StackOverflowException !!!\r\n                parsedJson.WriteTo(jWriter);\r\n            }\r\n\r\n            //ToString throws StackOverflowException as well  (ToString is very unefficient - even for smaller payloads, it will occupy a lot of CPU & Memory)\r\n            //parsedJson.ToString();\r\n\r\n            //JsonConvert.SerializeObject throws StackOverflowException as well\r\n            //string a = JsonConvert.SerializeObject(parsedJson);\r\n\r\n        }\r\n    }\r\n}\r\n\r\n```\n## Remediation\nUpgrade `Newtonsoft.Json` to version 13.0.1 or higher.\n## References\n- [GitHub Commit](https://github.com/JamesNK/Newtonsoft.Json/commit/7e77bbe1beccceac4fc7b174b53abfefac278b66)\n- [GitHub Issue](https://github.com/JamesNK/Newtonsoft.Json/issues/2457)\n- [GitHub PR](https://github.com/JamesNK/Newtonsoft.Json/pull/2462)\n- [Security Advisory](https://alephsecurity.com/vulns/aleph-2018004)\n- [Security Article](https://alephsecurity.com/2018/10/22/StackOverflowException/)\n",
+      "epssDetails": {
+        "percentile": "0.69806",
+        "probability": "0.00296",
+        "modelVersion": "v2023.03.01"
+      },
+      "identifiers": {
+        "CVE": [
+          "CVE-2024-21907"
+        ],
+        "CWE": [
+          "CWE-755"
+        ],
+        "GHSA": [
+          "GHSA-5crp-9r3c-p9vr"
+        ]
+      },
+      "packageName": "Newtonsoft.Json",
+      "proprietary": false,
+      "creationTime": "2022-04-24T08:33:35.726602Z",
+      "functions_new": [],
+      "alternativeIds": [],
+      "disclosureTime": "2022-04-24T08:33:33Z",
+      "exploitDetails": {
+        "sources": [
+          "Snyk"
+        ],
+        "maturityLevels": [
+          {
+            "type": "secondary",
+            "level": "Proof of Concept",
+            "format": "CVSSv3"
+          },
+          {
+            "type": "primary",
+            "level": "Proof of Concept",
+            "format": "CVSSv4"
+          }
+        ]
+      },
+      "packageManager": "nuget",
+      "publicationTime": "2022-04-24T10:58:25Z",
+      "severityBasedOn": "CVSS",
+      "modificationTime": "2024-03-11T09:49:30.699485Z",
+      "socialTrendAlert": false,
+      "severityWithCritical": "high",
+      "from": [
+        "ProductApi@1.0.0",
+        "Newtonsoft.Json@12.0.3"
+      ],
+      "upgradePath": [
+        false,
+        "Newtonsoft.Json@13.0.1"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "Newtonsoft.Json",
+      "version": "12.0.3"
+    },
+    {
+      "id": "SNYK-DOTNET-SYSTEMNETHTTP-60045",
+      "title": "Denial of Service (DoS)",
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+      "credit": [
+        "David Fernandez"
+      ],
+      "semver": {
+        "vulnerable": [
+          "[,4.1.2)",
+          "[4.3.0,4.3.2)"
+        ]
+      },
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "4.1.2",
+        "4.3.2"
+      ],
+      "patches": [],
+      "insights": {
+        "triageAdvice": null
+      },
+      "language": "dotnet",
+      "severity": "high",
+      "cvssScore": 7.5,
+      "functions": [],
+      "malicious": false,
+      "isDisputed": false,
+      "moduleName": "system.net.http",
+      "references": [
+        {
+          "url": "https://github.com/aspnet/Announcements/issues/239",
+          "title": "GitHub Issue"
+        },
+        {
+          "url": "https://technet.microsoft.com/en-us/library/security/4021279.aspx",
+          "title": "Microsoft Security Advisory"
+        },
+        {
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2017-0247",
+          "title": "NVD"
+        }
+      ],
+      "cvssDetails": [
+        {
+          "assigner": "NVD",
+          "severity": "high",
+          "cvssV3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+          "cvssV3BaseScore": 7.5,
+          "modificationTime": "2024-03-11T09:46:28.620317Z"
+        }
+      ],
+      "cvssSources": [
+        {
+          "type": "primary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+          "assigner": "Snyk",
+          "severity": "high",
+          "baseScore": 7.5,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-06T14:06:08.284901Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+          "assigner": "NVD",
+          "severity": "high",
+          "baseScore": 7.5,
+          "cvssVersion": "3.0",
+          "modificationTime": "2024-03-11T09:46:28.620317Z"
+        }
+      ],
+      "description": "## Overview\n\n[System.Net.Http](https://www.nuget.org/packages/System.Net.Http/) is an Provides a programming interface for modern HTTP applications, including HTTP client components that allow applications to consume web services over HTTP and HTTP components that can be used by both clients and servers for parsing HTTP headers.\n\n\nAffected versions of this package are vulnerable to Denial of Service (DoS)\nas `ASP.NET Core` fails to properly validate web requests.\r\n\r\n**NOTE:** Microsoft has not commented on third-party claims that the issue is that the `TextEncoder.EncodeCore` function in the `System.Text.Encodings.Web` package in ASP.NET Core Mvc before 1.0.4 and 1.1.x before 1.1.3 allows remote attackers to cause a denial of service by leveraging failure to properly calculate the length of 4-byte characters in the Unicode Non-Character range.\n\n## Details\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its intended and legitimate users.\r\n\r\nUnlike other vulnerabilities, DoS attacks usually do not aim at breaching security. Rather, they are focused on making websites and services unavailable to genuine users resulting in downtime.\r\n\r\nOne popular Denial of Service vulnerability is DDoS (a Distributed Denial of Service), an attack that attempts to clog network pipes to the system by generating a large volume of traffic from many machines.\r\n\r\nWhen it comes to open source libraries, DoS vulnerabilities allow attackers to trigger such a crash or crippling of the service by using a flaw either in the application code or from the use of open source libraries.\r\n\r\nTwo common types of DoS vulnerabilities:\r\n\r\n* High CPU/Memory Consumption- An attacker sending crafted requests that could cause the system to take a disproportionate amount of time to process. For example, [commons-fileupload:commons-fileupload](SNYK-JAVA-COMMONSFILEUPLOAD-30082).\r\n\r\n* Crash - An attacker sending crafted requests that could cause the system to crash. For Example,  [npm `ws` package](npm:ws:20171108)\n\n## Remediation\n\nUpgrade `System.Net.Http` to version 4.1.2, 4.3.2 or higher.\n\n\n## References\n\n- [GitHub Issue](https://github.com/aspnet/Announcements/issues/239)\n\n- [Microsoft Security Advisory](https://technet.microsoft.com/en-us/library/security/4021279.aspx)\n\n- [NVD](https://nvd.nist.gov/vuln/detail/CVE-2017-0247)\n",
+      "epssDetails": {
+        "percentile": "0.72207",
+        "probability": "0.00349",
+        "modelVersion": "v2023.03.01"
+      },
+      "identifiers": {
+        "CVE": [
+          "CVE-2017-0247"
+        ],
+        "CWE": [
+          "CWE-254"
+        ]
+      },
+      "packageName": "System.Net.Http",
+      "proprietary": false,
+      "creationTime": "2017-07-19T00:00:00Z",
+      "functions_new": [],
+      "alternativeIds": [],
+      "disclosureTime": "2017-05-09T00:00:00Z",
+      "exploitDetails": {
+        "sources": [],
+        "maturityLevels": [
+          {
+            "type": "secondary",
+            "level": "Not Defined",
+            "format": "CVSSv3"
+          },
+          {
+            "type": "primary",
+            "level": "Not Defined",
+            "format": "CVSSv4"
+          }
+        ]
+      },
+      "packageManager": "nuget",
+      "publicationTime": "2017-05-09T00:00:00Z",
+      "severityBasedOn": "CVSS",
+      "modificationTime": "2024-03-11T09:46:28.620317Z",
+      "socialTrendAlert": false,
+      "severityWithCritical": "high",
+      "from": [
+        "ProductApi@1.0.0",
+        "System.Net.Http@4.3.1"
+      ],
+      "upgradePath": [
+        false,
+        "System.Net.Http@4.3.2"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "System.Net.Http",
+      "version": "4.3.1"
+    },
+    {
+      "id": "SNYK-DOTNET-SYSTEMNETHTTP-60046",
+      "title": "Improper Certificate Validation",
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+      "credit": [
+        "Joonwoo Yu",
+        "Hyoung-Kee Choi"
+      ],
+      "semver": {
+        "vulnerable": [
+          "[,4.1.2)",
+          "[4.3,4.3.2)"
+        ]
+      },
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "4.1.2",
+        "4.3.2"
+      ],
+      "patches": [],
+      "insights": {
+        "triageAdvice": null
+      },
+      "language": "dotnet",
+      "severity": "high",
+      "cvssScore": 7.5,
+      "functions": [],
+      "malicious": false,
+      "isDisputed": false,
+      "moduleName": "system.net.http",
+      "references": [
+        {
+          "url": "https://github.com/aspnet/Announcements/issues/239",
+          "title": "GitHub Issue"
+        },
+        {
+          "url": "https://technet.microsoft.com/en-us/library/security/4021279.aspx",
+          "title": "Microsoft Security Advisory"
+        },
+        {
+          "url": "https://nvd.nist.gov/vuln/detail/2017-0248",
+          "title": "NVD"
+        }
+      ],
+      "cvssDetails": [
+        {
+          "assigner": "NVD",
+          "severity": "high",
+          "cvssV3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+          "cvssV3BaseScore": 7.5,
+          "modificationTime": "2024-03-11T09:46:27.276314Z"
+        }
+      ],
+      "cvssSources": [
+        {
+          "type": "primary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+          "assigner": "Snyk",
+          "severity": "high",
+          "baseScore": 7.5,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-06T13:57:47.252278Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+          "assigner": "NVD",
+          "severity": "high",
+          "baseScore": 7.5,
+          "cvssVersion": "3.0",
+          "modificationTime": "2024-03-11T09:46:27.276314Z"
+        }
+      ],
+      "description": "## Overview\n[System.Net.Http](https://www.nuget.org/packages/System.Net.Http/) is a Provides a programming interface for modern HTTP applications, including HTTP client components that allow applications to consume web services over HTTP and HTTP components that can be used by both clients and servers for parsing HTTP headers.\n\nAffected versions of this package are vulnerable to Improper Certificate Validation. It allows an attacker to bypass _Enhanced Security Usage_ tagging when they present a certificate that is invalid for a specific use.\n## Remediation\nUpgrade `System.Net.Http` to version 4.1.2, 4.3.2 or higher.\n## References\n- [GitHub Issue](https://github.com/aspnet/Announcements/issues/239)\n- [Microsoft Security Advisory](https://technet.microsoft.com/en-us/library/security/4021279.aspx)\n- [NVD](https://nvd.nist.gov/vuln/detail/2017-0248)\n",
+      "epssDetails": {
+        "percentile": "0.59228",
+        "probability": "0.00208",
+        "modelVersion": "v2023.03.01"
+      },
+      "identifiers": {
+        "CVE": [
+          "CVE-2017-0248"
+        ],
+        "CWE": [
+          "CWE-287"
+        ]
+      },
+      "packageName": "System.Net.Http",
+      "proprietary": false,
+      "creationTime": "2017-07-19T00:00:00Z",
+      "functions_new": [],
+      "alternativeIds": [],
+      "disclosureTime": "2017-05-12T00:00:00Z",
+      "exploitDetails": {
+        "sources": [],
+        "maturityLevels": [
+          {
+            "type": "secondary",
+            "level": "Not Defined",
+            "format": "CVSSv3"
+          },
+          {
+            "type": "primary",
+            "level": "Not Defined",
+            "format": "CVSSv4"
+          }
+        ]
+      },
+      "packageManager": "nuget",
+      "publicationTime": "2017-05-12T00:00:00Z",
+      "severityBasedOn": "CVSS",
+      "modificationTime": "2024-03-11T09:46:27.276314Z",
+      "socialTrendAlert": false,
+      "severityWithCritical": "high",
+      "from": [
+        "ProductApi@1.0.0",
+        "System.Net.Http@4.3.1"
+      ],
+      "upgradePath": [
+        false,
+        "System.Net.Http@4.3.2"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "System.Net.Http",
+      "version": "4.3.1"
+    },
+    {
+      "id": "SNYK-DOTNET-SYSTEMNETHTTP-60047",
+      "title": "Privilege Escalation",
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+      "credit": [
+        "Unknown"
+      ],
+      "semver": {
+        "vulnerable": [
+          "[,4.1.2)",
+          "[4.3,4.3.2)"
+        ]
+      },
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "4.1.2",
+        "4.3.2"
+      ],
+      "patches": [],
+      "insights": {
+        "triageAdvice": null
+      },
+      "language": "dotnet",
+      "severity": "high",
+      "cvssScore": 7.3,
+      "functions": [],
+      "malicious": false,
+      "isDisputed": false,
+      "moduleName": "system.net.http",
+      "references": [
+        {
+          "url": "https://github.com/aspnet/Announcements/issues/239",
+          "title": "GitHub Issue"
+        }
+      ],
+      "cvssDetails": [
+        {
+          "assigner": "NVD",
+          "severity": "high",
+          "cvssV3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+          "cvssV3BaseScore": 7.3,
+          "modificationTime": "2024-03-11T09:46:27.393055Z"
+        }
+      ],
+      "cvssSources": [
+        {
+          "type": "primary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+          "assigner": "Snyk",
+          "severity": "high",
+          "baseScore": 7.3,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-06T13:56:55.934503Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+          "assigner": "NVD",
+          "severity": "high",
+          "baseScore": 7.3,
+          "cvssVersion": "3.0",
+          "modificationTime": "2024-03-11T09:46:27.393055Z"
+        }
+      ],
+      "description": "## Overview\n\n[System.Net.Http](https://www.nuget.org/packages/System.Net.Http/) Provides a programming interface for modern HTTP applications, including HTTP client components that allow applications to consume web services over HTTP and HTTP components that can be used by both clients and servers for parsing HTTP headers.\n\n\nAffected versions of this package are vulnerable to Privilege Escalation\ndue to failing to properly sanitize web requests.\n\n## Remediation\n\nUpgrade `System.Net.Http` to version 4.1.2, 4.3.2 or higher.\n\n\n## References\n\n- [GitHub Issue](https://github.com/aspnet/Announcements/issues/239)\n",
+      "epssDetails": {
+        "percentile": "0.48201",
+        "probability": "0.00127",
+        "modelVersion": "v2023.03.01"
+      },
+      "identifiers": {
+        "CVE": [
+          "CVE-2017-0249"
+        ],
+        "CWE": [
+          "CWE-269"
+        ]
+      },
+      "packageName": "System.Net.Http",
+      "proprietary": false,
+      "creationTime": "2017-07-19T00:00:00Z",
+      "functions_new": [],
+      "alternativeIds": [],
+      "disclosureTime": "2017-05-12T00:00:00Z",
+      "exploitDetails": {
+        "sources": [],
+        "maturityLevels": [
+          {
+            "type": "secondary",
+            "level": "Not Defined",
+            "format": "CVSSv3"
+          },
+          {
+            "type": "primary",
+            "level": "Not Defined",
+            "format": "CVSSv4"
+          }
+        ]
+      },
+      "packageManager": "nuget",
+      "publicationTime": "2017-05-12T00:00:00Z",
+      "severityBasedOn": "CVSS",
+      "modificationTime": "2024-03-11T09:46:27.393055Z",
+      "socialTrendAlert": false,
+      "severityWithCritical": "high",
+      "from": [
+        "ProductApi@1.0.0",
+        "System.Net.Http@4.3.1"
+      ],
+      "upgradePath": [
+        false,
+        "System.Net.Http@4.3.2"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "System.Net.Http",
+      "version": "4.3.1"
+    },
+    {
+      "id": "SNYK-DOTNET-SYSTEMNETHTTP-60048",
+      "title": "Authentication Bypass",
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+      "credit": [
+        "Mikhail Shcherbakov"
+      ],
+      "semver": {
+        "vulnerable": [
+          "[,4.1.2)",
+          "[4.3,4.3.2)"
+        ]
+      },
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "4.1.2",
+        "4.3.2"
+      ],
+      "patches": [],
+      "insights": {
+        "triageAdvice": null
+      },
+      "language": "dotnet",
+      "severity": "medium",
+      "cvssScore": 5.3,
+      "functions": [],
+      "malicious": false,
+      "isDisputed": false,
+      "moduleName": "system.net.http",
+      "references": [
+        {
+          "url": "https://github.com/aspnet/Announcements/issues/239",
+          "title": "GitHub Issue"
+        },
+        {
+          "url": "https://technet.microsoft.com/en-us/library/security/4021279.aspx",
+          "title": "Microsoft Security Advisory"
+        },
+        {
+          "url": "https://nvd.nist.gov/vuln/detail/2017-0256",
+          "title": "NVD"
+        }
+      ],
+      "cvssDetails": [
+        {
+          "assigner": "NVD",
+          "severity": "medium",
+          "cvssV3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+          "cvssV3BaseScore": 5.3,
+          "modificationTime": "2024-03-11T09:48:17.793073Z"
+        }
+      ],
+      "cvssSources": [
+        {
+          "type": "primary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+          "assigner": "Snyk",
+          "severity": "medium",
+          "baseScore": 5.3,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-06T13:57:34.932818Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+          "assigner": "NVD",
+          "severity": "medium",
+          "baseScore": 5.3,
+          "cvssVersion": "3.0",
+          "modificationTime": "2024-03-11T09:48:17.793073Z"
+        }
+      ],
+      "description": "## Overview\nThe ASP.NET Core fails to properly sanitize the _Web Request Handler_ component, allowing an attacker to spoof web requests and bypass authentication.\n\n## References\n- [https://github.com/aspnet/Announcements/issues/239](https://github.com/aspnet/Announcements/issues/239)\n- [https://technet.microsoft.com/en-us/library/security/4021279.aspx](https://technet.microsoft.com/en-us/library/security/4021279.aspx)\n- [https://nvd.nist.gov/vuln/detail/2017-0256](https://nvd.nist.gov/vuln/detail/2017-0256)\n",
+      "epssDetails": {
+        "percentile": "0.44498",
+        "probability": "0.00108",
+        "modelVersion": "v2023.03.01"
+      },
+      "identifiers": {
+        "CVE": [
+          "CVE-2017-0256"
+        ],
+        "CWE": [
+          "CWE-20"
+        ]
+      },
+      "packageName": "System.Net.Http",
+      "proprietary": false,
+      "creationTime": "2017-07-19T00:00:00Z",
+      "functions_new": [],
+      "alternativeIds": [],
+      "disclosureTime": "2017-05-12T00:00:00Z",
+      "exploitDetails": {
+        "sources": [],
+        "maturityLevels": [
+          {
+            "type": "secondary",
+            "level": "Not Defined",
+            "format": "CVSSv3"
+          },
+          {
+            "type": "primary",
+            "level": "Not Defined",
+            "format": "CVSSv4"
+          }
+        ]
+      },
+      "packageManager": "nuget",
+      "publicationTime": "2017-05-12T00:00:00Z",
+      "severityBasedOn": "CVSS",
+      "modificationTime": "2024-03-11T09:48:17.793073Z",
+      "socialTrendAlert": false,
+      "severityWithCritical": "medium",
+      "from": [
+        "ProductApi@1.0.0",
+        "System.Net.Http@4.3.1"
+      ],
+      "upgradePath": [
+        false,
+        "System.Net.Http@4.3.2"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "System.Net.Http",
+      "version": "4.3.1"
+    },
+    {
+      "id": "SNYK-DOTNET-SYSTEMNETHTTP-72439",
+      "title": "Information Exposure",
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+      "credit": [
+        "leecow"
+      ],
+      "semver": {
+        "vulnerable": [
+          "[2.0.20126.16343, 2.0.20710)",
+          "[4.0.0,4.0.1-beta-23225)",
+          "[4.1.0,4.1.4)",
+          "[4.3.0,4.3.4)"
+        ]
+      },
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "2.0.20710",
+        "4.0.1-beta-23225",
+        "4.1.4",
+        "4.3.4"
+      ],
+      "patches": [],
+      "insights": {
+        "triageAdvice": null
+      },
+      "language": "dotnet",
+      "severity": "high",
+      "cvssScore": 7.5,
+      "functions": [],
+      "malicious": false,
+      "isDisputed": false,
+      "moduleName": "system.net.http",
+      "references": [
+        {
+          "url": "https://github.com/dotnet/announcements/issues/88",
+          "title": "GitHub Issue"
+        }
+      ],
+      "cvssDetails": [
+        {
+          "assigner": "Red Hat",
+          "severity": "high",
+          "cvssV3Vector": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+          "cvssV3BaseScore": 7.4,
+          "modificationTime": "2024-03-11T09:47:20.195925Z"
+        },
+        {
+          "assigner": "NVD",
+          "severity": "high",
+          "cvssV3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+          "cvssV3BaseScore": 7.5,
+          "modificationTime": "2024-03-11T09:48:29.429541Z"
+        }
+      ],
+      "cvssSources": [
+        {
+          "type": "primary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+          "assigner": "Snyk",
+          "severity": "high",
+          "baseScore": 7.5,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-06T14:02:59.310959Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+          "assigner": "Red Hat",
+          "severity": "high",
+          "baseScore": 7.4,
+          "cvssVersion": "3.0",
+          "modificationTime": "2024-03-11T09:47:20.195925Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+          "assigner": "NVD",
+          "severity": "high",
+          "baseScore": 7.5,
+          "cvssVersion": "3.0",
+          "modificationTime": "2024-03-11T09:48:29.429541Z"
+        }
+      ],
+      "description": "## Overview\n\n[System.Net.Http](https://www.nuget.org/packages/System.Net.Http/) Provides a programming interface for modern HTTP applications, including HTTP client components that allow applications to consume web services over HTTP and HTTP components that can be used by both clients and servers for parsing HTTP headers.\n\n\nAffected versions of this package are vulnerable to Information Exposure.\nWhen HTTP authentication information is inadvertently exposed in an outbound request that encounters an HTTP redirect. An attacker who successfully exploited this vulnerability could use the information to further compromise the web application.\r\n\r\n**Note:** The presence of `System.Net.Http` in the dependency graph of `netcoreapp2.0` isn't the final determination of what is loaded at runtime. The version conflict resolution logic will prefer what is present in `Microsoft.NETCore.App/2.1.5`, or the latest patch release. As such, is not considered an issue.\n\n## Remediation\n\nUpgrade `System.Net.Http` to version 2.0.20710, 4.0.1-beta-23225, 4.1.4, 4.3.4 or higher.\n\n\n## References\n\n- [GitHub Issue](https://github.com/dotnet/announcements/issues/88)\n",
+      "epssDetails": {
+        "percentile": "0.89701",
+        "probability": "0.02219",
+        "modelVersion": "v2023.03.01"
+      },
+      "identifiers": {
+        "CVE": [
+          "CVE-2018-8292"
+        ],
+        "CWE": [
+          "CWE-200"
+        ],
+        "GHSA": [
+          "GHSA-7jgj-8wvc-jh57"
+        ]
+      },
+      "packageName": "System.Net.Http",
+      "proprietary": false,
+      "creationTime": "2018-10-11T06:50:22.411410Z",
+      "functions_new": [],
+      "alternativeIds": [],
+      "disclosureTime": "2018-10-09T22:51:18Z",
+      "exploitDetails": {
+        "sources": [],
+        "maturityLevels": [
+          {
+            "type": "secondary",
+            "level": "Not Defined",
+            "format": "CVSSv3"
+          },
+          {
+            "type": "primary",
+            "level": "Not Defined",
+            "format": "CVSSv4"
+          }
+        ]
+      },
+      "packageManager": "nuget",
+      "publicationTime": "2018-10-10T15:24:52Z",
+      "severityBasedOn": "CVSS",
+      "modificationTime": "2024-03-11T09:48:29.429541Z",
+      "socialTrendAlert": false,
+      "severityWithCritical": "high",
+      "from": [
+        "ProductApi@1.0.0",
+        "System.Net.Http@4.3.1"
+      ],
+      "upgradePath": [
+        false,
+        "System.Net.Http@4.3.4"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "System.Net.Http",
+      "version": "4.3.1"
+    }
+  ],
+  "ok": false,
+  "dependencyCount": 70,
+  "org": "pradeeploganathan",
+  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.25.1\nignore: {}\npatch: {}\n",
+  "isPrivate": true,
+  "licensesPolicy": {
+    "severities": {},
+    "orgLicenseRules": {
+      "AGPL-1.0": {
+        "licenseType": "AGPL-1.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "AGPL-3.0": {
+        "licenseType": "AGPL-3.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "Artistic-1.0": {
+        "licenseType": "Artistic-1.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "Artistic-2.0": {
+        "licenseType": "Artistic-2.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "CDDL-1.0": {
+        "licenseType": "CDDL-1.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "CPOL-1.02": {
+        "licenseType": "CPOL-1.02",
+        "severity": "high",
+        "instructions": ""
+      },
+      "EPL-1.0": {
+        "licenseType": "EPL-1.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "GPL-2.0": {
+        "licenseType": "GPL-2.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "GPL-3.0": {
+        "licenseType": "GPL-3.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "LGPL-2.0": {
+        "licenseType": "LGPL-2.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "LGPL-2.1": {
+        "licenseType": "LGPL-2.1",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "LGPL-3.0": {
+        "licenseType": "LGPL-3.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "MPL-1.1": {
+        "licenseType": "MPL-1.1",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "MPL-2.0": {
+        "licenseType": "MPL-2.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "MS-RL": {
+        "licenseType": "MS-RL",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "SimPL-2.0": {
+        "licenseType": "SimPL-2.0",
+        "severity": "high",
+        "instructions": ""
+      }
+    }
+  },
+  "packageManager": "nuget",
+  "ignoreSettings": {
+    "adminOnly": false,
+    "reasonRequired": false,
+    "disregardFilesystemIgnores": false
+  },
+  "summary": "6 vulnerable dependency paths",
+  "remediation": {
+    "unresolved": [],
+    "upgrade": {
+      "Newtonsoft.Json@12.0.3": {
+        "upgradeTo": "Newtonsoft.Json@13.0.1",
+        "upgrades": [
+          "Newtonsoft.Json@12.0.3"
+        ],
+        "vulns": [
+          "SNYK-DOTNET-NEWTONSOFTJSON-2774678"
+        ]
+      },
+      "System.Net.Http@4.3.1": {
+        "upgradeTo": "System.Net.Http@4.3.4",
+        "upgrades": [
+          "System.Net.Http@4.3.1",
+          "System.Net.Http@4.3.1",
+          "System.Net.Http@4.3.1",
+          "System.Net.Http@4.3.1",
+          "System.Net.Http@4.3.1"
+        ],
+        "vulns": [
+          "SNYK-DOTNET-SYSTEMNETHTTP-72439",
+          "SNYK-DOTNET-SYSTEMNETHTTP-60045",
+          "SNYK-DOTNET-SYSTEMNETHTTP-60046",
+          "SNYK-DOTNET-SYSTEMNETHTTP-60047",
+          "SNYK-DOTNET-SYSTEMNETHTTP-60048"
+        ]
+      }
+    },
+    "patch": {},
+    "ignore": {},
+    "pin": {}
+  },
+  "filesystemPolicy": false,
+  "filtered": {
+    "ignore": [],
+    "patch": []
+  },
+  "uniqueCount": 6,
+  "targetFile": "obj/project.assets.json",
+  "projectName": "ProductApi",
+  "displayTargetFile": "obj/project.assets.json",
+  "hasUnknownVersions": false,
+  "path": "/home/pradeepl/source/repos/ShoppingCart/ProductApi"
+}

@@ -1,0 +1,22 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Copy csproj and restore as distinct layers
+COPY ShoppingCartApp/ShoppingCartApp.csproj ./ShoppingCartApp/
+RUN dotnet restore ./ShoppingCartApp/ShoppingCartApp.csproj
+
+# Copy everything else and build
+COPY ShoppingCartApp/. ./ShoppingCartApp/
+WORKDIR /src/ShoppingCartApp
+RUN dotnet publish -c Release -o /app/publish
+
+# Use the official ASP.NET Core runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+COPY --from=build /app/publish .
+
+# Expose port 80
+EXPOSE 80
+
+# Start the application
+ENTRYPOINT ["dotnet", "ShoppingCartApp.dll"]

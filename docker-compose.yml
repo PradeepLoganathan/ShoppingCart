@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  productapi:
+    build:
+      context: .
+      dockerfile: ProductApi/Dockerfile
+    ports:
+      - "5001:80"
+    networks:
+      - shoppingcart-network
+
+  shoppingcartapi:
+    build:
+      context: .
+      dockerfile: ShoppingCartApi/Dockerfile
+    ports:
+      - "5002:80"
+    networks:
+      - shoppingcart-network
+
+  shoppingcartapp:
+    build:
+      context: .
+      dockerfile: ShoppingCartApp/Dockerfile
+    ports:
+      - "5003:80"
+    networks:
+      - shoppingcart-network
+
+  shoppingcartweb:
+    build:
+      context: .
+      dockerfile: ShoppingCartWeb/Dockerfile
+    ports:
+      - "5000:80"
+    networks:
+      - shoppingcart-network
+
+networks:
+  shoppingcart-network:
+    driver: bridge
