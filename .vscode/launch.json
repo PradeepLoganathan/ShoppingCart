@@ -17,6 +17,7 @@
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             },
+            "launchSettingsProfile": "http",
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/ShoppingCartWeb/Views"
             }
@@ -34,6 +35,7 @@
                 "action": "openExternally",
                 "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
             },
+            "launchSettingsProfile": "http",
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             }
@@ -51,6 +53,7 @@
                 "action": "openExternally",
                 "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
             },
+            "launchSettingsProfile": "http",
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             }

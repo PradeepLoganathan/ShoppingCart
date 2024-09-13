@@ -25,7 +25,7 @@ else
                     <td>@item.ProductName</td>
                     <td>@item.Quantity</td>
                     <td>@item.ProductPrice.ToString("C")</td>
-                    <td>@(item.ProductPrice * item.Quantity).ToString("C")</td>
+                    <td>@((item.ProductPrice * item.Quantity).ToString("C"))</td> <!-- Correct way to format the total -->
                     <td>
                         <form method="post" asp-action="RemoveFromCart" asp-route-id="@item.CartItemId">
                             <button type="submit" class="btn btn-danger">Remove</button>
