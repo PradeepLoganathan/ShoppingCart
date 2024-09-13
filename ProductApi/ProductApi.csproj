@@ -12,6 +12,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.8" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.Net.Http" Version="4.3.1" />
+    <!-- <PackageReference Include="HtmlSanitizer" Version="5.0.371" /> -->
+    <!-- <PackageReference Include="DotNetNuke" Version="9.1.0" /> -->
   </ItemGroup>
 
 </Project>
