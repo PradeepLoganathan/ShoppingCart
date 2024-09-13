@@ -113,6 +113,33 @@ namespace ShoppingCartWeb.Controllers
             return RedirectToAction("Confirmation");
         }
 
+        public async Task<IActionResult> ClearCart()
+        {
+            try
+            {
+                var cartClient = _httpClientFactory.CreateClient("CartApiClient");
+
+                // Call the API to clear the cart (assuming you have an endpoint to clear the cart)
+                var response = await cartClient.DeleteAsync($"{_cartApiBaseUrl}/cart/clear"); // Example endpoint
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["Message"] = "Your cart has been cleared.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Failed to clear your cart.";
+                }
+
+                return RedirectToAction("Index", "Products");  // Redirect to the product listing page
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred while clearing your cart.";
+                return RedirectToAction("Index", "Products"); // Redirect to product listing page on error
+            }
+        }
+
         // Confirmation page after placing the order
         public IActionResult Confirmation()
         {

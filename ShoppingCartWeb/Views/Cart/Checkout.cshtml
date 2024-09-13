@@ -13,11 +13,11 @@ else
             <h3>Shipping Information</h3>
             <div class="form-group">
                 <label for="name">Name</label>
-                <input type="text" id="name" name="Name" class="form-control" required />
+                <input type="text" id="name" name="Name" class="form-control" required value="@Model.Name" />
             </div>
             <div class="form-group">
                 <label for="address">Address</label>
-                <textarea id="address" name="Address" class="form-control" required></textarea>
+                <textarea id="address" name="Address" class="form-control" required>@Model.Address</textarea>
             </div>
         </div>
 
@@ -33,14 +33,20 @@ else
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model.CartItems)
+                    @for (int i = 0; i < Model.CartItems.Count; i++)
                     {
                         <tr>
-                            <td>@item.ProductName</td>
-                            <td>@item.ProductPrice.ToString("C")</td>
-                            <td>@item.Quantity</td>
-                            <td>@(item.ProductPrice * item.Quantity).ToString("C")</td>
+                            <td>@Model.CartItems[i].ProductName</td>
+                            <td>@Model.CartItems[i].ProductPrice.ToString("C")</td>
+                            <td>@Model.CartItems[i].Quantity</td>
+                            <td>@((Model.CartItems[i].ProductPrice * Model.CartItems[i].Quantity).ToString("C"))</td>
                         </tr>
+
+                        <!-- Hidden fields to include CartItems in the form post -->
+                        <input type="hidden" name="CartItems[@i].ProductId" value="@Model.CartItems[i].ProductId" />
+                        <input type="hidden" name="CartItems[@i].ProductName" value="@Model.CartItems[i].ProductName" />
+                        <input type="hidden" name="CartItems[@i].ProductPrice" value="@Model.CartItems[i].ProductPrice" />
+                        <input type="hidden" name="CartItems[@i].Quantity" value="@Model.CartItems[i].Quantity" />
                     }
                 </tbody>
             </table>

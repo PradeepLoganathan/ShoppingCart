@@ -97,4 +97,20 @@ app.MapDelete("/cart/{id}", async (int id, ShoppingCartContext db) =>
     return Results.NoContent();
 }).WithTags("Cart");
 
+
+// DELETE all cart items (clear the cart)
+app.MapDelete("/cart/clear", async (ShoppingCartContext db) =>
+{
+    var cartItems = await db.CartItems.ToListAsync();
+
+    if (cartItems.Any())
+    {
+        db.CartItems.RemoveRange(cartItems);
+        await db.SaveChangesAsync();
+    }
+
+    return Results.NoContent();  // Return 204 No Content if the cart was successfully cleared
+}).WithTags("Cart");
+
+
 app.Run();
