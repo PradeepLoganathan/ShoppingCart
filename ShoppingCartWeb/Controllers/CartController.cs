@@ -106,11 +106,27 @@ namespace ShoppingCartWeb.Controllers
                 return View("Checkout", model);
             }
 
-            // Here you would typically save the order to the database, 
-            // send confirmation emails, etc.
+            // Process payment (Dummy logic)
+            bool paymentSuccessful = ProcessPayment(model.CardNumber, model.CardExpiry, model.CardCVV);
+
+            if (!paymentSuccessful)
+            {
+                TempData["ErrorMessage"] = "Payment failed. Please check your card details.";
+                return View("Checkout", model); // Return to checkout page on payment failure
+            }
+
+            // Payment succeeded: Proceed with order placement
             TempData["Message"] = "Thank you for your order! Your order has been placed successfully.";
 
             return RedirectToAction("Confirmation");
+        }
+
+        // Dummy payment processing logic
+        private bool ProcessPayment(string cardNumber, string cardExpiry, string cardCVV)
+        {
+            // In a real application, you would call a payment gateway API here.
+            // For now, this method always returns true for demonstration purposes.
+            return true;
         }
 
         public async Task<IActionResult> ClearCart()

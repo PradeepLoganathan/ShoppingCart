@@ -54,6 +54,39 @@ else
             <h4>Total Price: @Model.TotalPrice.ToString("C")</h4>
         </div>
 
+        <!-- Payment Section -->
+        <div>
+            <h3>Payment Information</h3>
+            <div class="form-group">
+                <label for="cardNumber">Card Number</label>
+                <input type="text" id="cardNumber" name="CardNumber" class="form-control" required maxlength="16" oninput="detectCardType()" />
+                <small id="cardType" class="text-muted"></small> <!-- Card type display (Visa/MasterCard) -->
+            </div>
+            <div class="form-group">
+                <label for="cardExpiry">Expiry Date (MM/YY)</label>
+                <input type="text" id="cardExpiry" name="CardExpiry" class="form-control" required maxlength="5" placeholder="MM/YY" />
+            </div>
+            <div class="form-group">
+                <label for="cardCVV">CVV</label>
+                <input type="text" id="cardCVV" name="CardCVV" class="form-control" required maxlength="3" />
+            </div>
+        </div>
+
         <button type="submit" class="btn btn-primary">Place Order</button>
     </form>
+
+    <script>
+        function detectCardType() {
+            const cardNumber = document.getElementById("cardNumber").value;
+            const cardTypeElement = document.getElementById("cardType");
+
+            if (cardNumber.startsWith('4')) {
+                cardTypeElement.textContent = "Visa";
+            } else if (cardNumber.startsWith('5')) {
+                cardTypeElement.textContent = "MasterCard";
+            } else {
+                cardTypeElement.textContent = "";
+            }
+        }
+    </script>
 }
