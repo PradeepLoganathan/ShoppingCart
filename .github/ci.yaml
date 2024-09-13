@@ -1,0 +1,55 @@
+name: CI
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v3
+
+    - name: Restore NuGet Packages
+      run: dotnet restore
+ 
+    - name: dotnet build
+      run: dotnet build TodoApi.sln -c Release
+
+    - name: dotnet test
+      run: dotnet test TodoApi.sln -c Release --no-build
+    
+    #Run Snyk Security Scan and fail build on high or critical severity vulnerabilities
+    - name: Snyk Security Scan
+      id: snyk_scan
+      uses: snyk/actions/dotnet@master
+      with:
+        args: 
+          --severity-threshold=high
+          --all-projects
+          --org=pradeeploganathan
+          --sarif-file-output=snyk.sarif
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      continue-on-error: true
+    
+    - name: Snyk Code Scan
+      uses: snyk/actions/code@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }} 
+      with:
+        args: --severity-threshold=high  # Or adjust as needed
+     
+    # Upload SARIF to GitHub Code Scanning
+    - name: Upload result to GitHub Code Scanning
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: snyk.sarif
+    
+    # Fail the build if there are any high or critical vulnerabilities
+    - name: Check for vulnerabilities
+      if: steps.snyk_scan.outcome == 'failure'
+      run: exit 1

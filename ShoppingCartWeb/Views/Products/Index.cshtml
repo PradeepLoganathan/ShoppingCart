@@ -22,7 +22,7 @@
         {
             <tr>
                 <td>@product.Name</td>
-                <td>@product.Price</td>
+                <td>@product.Price.ToString("C")</td> <!-- Format as currency -->
                 <td>
                     <!-- Add to Cart button -->
                     <form method="post" asp-action="AddToCart" asp-route-id="@product.Id">

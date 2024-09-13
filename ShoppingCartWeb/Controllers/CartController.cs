@@ -27,6 +27,7 @@ namespace ShoppingCartWeb.Controllers
         }
 
         // Remove an item from the cart via the API
+        // Remove an item from the cart via the API
         [HttpPost]
         public async Task<IActionResult> RemoveFromCart(int id)
         {
@@ -40,5 +41,6 @@ namespace ShoppingCartWeb.Controllers
                 return StatusCode((int)response.StatusCode, "Error removing product from cart");
             }
         }
+
     }
 }
