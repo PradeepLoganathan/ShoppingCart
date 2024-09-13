@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopping-cart-web
+  namespace: shopping-cart
+  labels:
+    app: shopping-cart-web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: shopping-cart-web
+  template:
+    metadata:
+      labels:
+        app: shopping-cart-web
+    spec:
+      containers:
+      - name: shopping-cart-web
+        image: pradeepl/shoppingcartweb:latest
+        ports:
+        - containerPort: 80
+        envFrom:
+        - configMapRef:
+            name: shopping-cart-web-config

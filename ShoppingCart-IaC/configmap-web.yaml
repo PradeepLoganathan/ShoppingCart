@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shopping-cart-web-config
+  namespace: shopping-cart
+data:
+  # Define your configuration here
+  # API_URL: "http://shopping-cart-api"
