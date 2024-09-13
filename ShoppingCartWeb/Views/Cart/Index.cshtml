@@ -39,4 +39,6 @@ else
     <h3>Total Cost: @Model.Sum(item => item.ProductPrice * item.Quantity).ToString("C")</h3>
 
     <a href="/Products" class="btn btn-primary">Continue Shopping</a>
+    <a href="/Cart/Checkout" class="btn btn-success">Proceed to Checkout</a>
+
 }

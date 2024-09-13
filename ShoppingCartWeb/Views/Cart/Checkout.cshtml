@@ -1,0 +1,53 @@
+@model ShoppingCartWeb.Models.CheckoutViewModel
+
+<h2>Checkout</h2>
+
+@if (Model.CartItems.Count == 0)
+{
+    <p>Your cart is empty. <a href="/Products">Continue Shopping</a></p>
+}
+else
+{
+    <form asp-action="PlaceOrder" method="post">
+        <div>
+            <h3>Shipping Information</h3>
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="Name" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label for="address">Address</label>
+                <textarea id="address" name="Address" class="form-control" required></textarea>
+            </div>
+        </div>
+
+        <div>
+            <h3>Your Cart</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.CartItems)
+                    {
+                        <tr>
+                            <td>@item.ProductName</td>
+                            <td>@item.ProductPrice.ToString("C")</td>
+                            <td>@item.Quantity</td>
+                            <td>@(item.ProductPrice * item.Quantity).ToString("C")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <h4>Total Price: @Model.TotalPrice.ToString("C")</h4>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Place Order</button>
+    </form>
+}

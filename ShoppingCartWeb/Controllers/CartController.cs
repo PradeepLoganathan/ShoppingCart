@@ -40,9 +40,6 @@ namespace ShoppingCartWeb.Controllers
             }
         }
 
-
-
-        // Remove an item from the cart via the API
         // Remove an item from the cart via the API
         [HttpPost]
         public async Task<IActionResult> RemoveFromCart(int id)
@@ -71,6 +68,55 @@ namespace ShoppingCartWeb.Controllers
             }
         }
 
+        // Display the checkout page
+        public async Task<IActionResult> Checkout()
+        {
+            try
+            {
+                var cartClient = _httpClientFactory.CreateClient("CartApiClient");
+                var cartItems = await cartClient.GetFromJsonAsync<List<CartItem>>("/cart");
 
+                if (cartItems == null || cartItems.Count == 0)
+                {
+                    TempData["ErrorMessage"] = "Your cart is empty. Please add items to your cart.";
+                    return RedirectToAction("Index");
+                }
+
+                var viewModel = new CheckoutViewModel
+                {
+                    CartItems = cartItems,
+                    TotalPrice = cartItems.Sum(item => item.ProductPrice * item.Quantity)
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred while preparing the checkout.";
+                return RedirectToAction("Index");
+            }
+        }
+
+        // Handle the order placement (this is where the form submits)
+        [HttpPost]
+        public IActionResult PlaceOrder(CheckoutViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("Checkout", model);
+            }
+
+            // Here you would typically save the order to the database, 
+            // send confirmation emails, etc.
+            TempData["Message"] = "Thank you for your order! Your order has been placed successfully.";
+
+            return RedirectToAction("Confirmation");
+        }
+
+        // Confirmation page after placing the order
+        public IActionResult Confirmation()
+        {
+            return View();
+        }
     }
 }
