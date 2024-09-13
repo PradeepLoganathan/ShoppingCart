@@ -2,6 +2,17 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "build ShoppingCartWeb",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/ShoppingCartWeb/ShoppingCartWeb.csproj"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "build"
+        },
+        {
             "label": "build ShoppingCartApi",
             "command": "dotnet",
             "type": "process",
@@ -13,27 +24,17 @@
             ],
             "problemMatcher": "$msCompile"
         },
-		{
-            "label": "build ShoppingCartApp",
+        {
+            "label": "build ProductApi",
             "command": "dotnet",
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/ShoppingCartApp/ShoppingCartApp.csproj"
+                "${workspaceFolder}/ProductApi/ProductApi.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
             ],
             "problemMatcher": "$msCompile"
-		},
-        {
-            "label": "build ShoppingCartWeb",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/ShoppingCartWeb/ShoppingCartWeb.csproj"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": "build"
         }
-      
     ]
 }

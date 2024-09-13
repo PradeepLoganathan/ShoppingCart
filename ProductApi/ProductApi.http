@@ -1,0 +1,30 @@
+@ProductApi_HostAddress = https://localhost:7121
+
+### Get All Products
+GET {{ProductApi_HostAddress}}/products
+Accept: application/json
+
+###
+
+### Get Product by ID
+GET {{ProductApi_HostAddress}}/products/1
+Accept: application/json
+
+###
+
+### Add a New Product
+POST {{ProductApi_HostAddress}}/products
+Content-Type: application/json
+
+{
+  "name": "New Product",
+  "price": 99.99
+}
+
+###
+
+### Delete a Product by ID
+DELETE {{ProductApi_HostAddress}}/products/1
+Accept: application/json
+
+###

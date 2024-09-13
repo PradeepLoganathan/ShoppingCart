@@ -10,18 +10,17 @@ namespace ShoppingCartWeb.Controllers
 {
     public class ProductsController : Controller
     {
-        private readonly HttpClient _httpClient;
-        private readonly string _apiBaseUrl;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public ProductsController(HttpClient httpClient,  IOptions<ApiSettings> apiSettings)
+        public ProductsController(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
-            _apiBaseUrl = apiSettings.Value.BaseUrl;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<IActionResult> Index()
         {
-            var products = await _httpClient.GetFromJsonAsync<List<Product>>($"{_apiBaseUrl}/products"); // URL of your API
+            var httpClient = _httpClientFactory.CreateClient("ProductApiClient");
+            var products = await httpClient.GetFromJsonAsync<List<Product>>("/products");
             return View(products);
         }
 
@@ -30,36 +29,50 @@ namespace ShoppingCartWeb.Controllers
         [HttpPost]
         public async Task<IActionResult> AddToCart(int id)
         {
-            // Fetch the product details from the API
-            var product = await _httpClient.GetFromJsonAsync<Product>($"{_apiBaseUrl}/products/{id}");
-
-            if (product == null)
+            try
             {
-                TempData["Message"] = "Product not found";
+                var productClient = _httpClientFactory.CreateClient("ProductApiClient");
+                var cartClient = _httpClientFactory.CreateClient("CartApiClient");
+
+                // Fetch the product details from the Product API
+                var product = await productClient.GetFromJsonAsync<Product>($"/products/{id}");
+
+                if (product == null)
+                {
+                    TempData["Message"] = "Product not found";
+                    return RedirectToAction("Index");
+                }
+
+                // Create the CartItem object to send to the Cart API
+                var cartItem = new CartItem
+                {
+                    ProductId = product.Id,
+                    Product = product,
+                    Quantity = 1  // Default quantity
+                };
+
+                // Post the cart item to the Cart API's /cart endpoint
+                var response = await cartClient.PostAsJsonAsync("/cart", cartItem);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["Message"] = "Item added to cart!";
+                }
+                else
+                {
+                    TempData["Message"] = $"Failed to add item to cart. Status Code: {response.StatusCode}";
+                }
+
                 return RedirectToAction("Index");
             }
-
-            // Create the CartItem object to send to the API
-            var cartItem = new CartItem
+            catch (Exception ex)
             {
-                ProductId = product.Id,
-                Product = product,
-                Quantity = 1  // Default quantity
-            };
-
-            // Post the cart item to the API's /cart endpoint
-            var response = await _httpClient.PostAsJsonAsync($"{_apiBaseUrl}/cart", cartItem);
-
-            if (response.IsSuccessStatusCode)
-            {
-                TempData["Message"] = "Item added to cart!";
+                // Log the exception (using your preferred logging framework)
+                // For example: _logger.LogError(ex, "Error adding item to cart");
+                TempData["Message"] = "An unexpected error occurred.";
+                return RedirectToAction("Index");
             }
-            else
-            {
-               TempData["Message"] = "Failed to add item to cart.";
-            }
-
-            return RedirectToAction("Index");
         }
     }
+
 }

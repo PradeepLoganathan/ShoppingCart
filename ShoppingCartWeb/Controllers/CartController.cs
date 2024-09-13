@@ -11,40 +11,69 @@ namespace ShoppingCartWeb.Controllers
 {
     public class CartController : Controller
     {
-        private readonly HttpClient _httpClient;
-        private readonly string _apiBaseUrl;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly string _cartApiBaseUrl;
 
-        public CartController(HttpClient httpClient,  IOptions<ApiSettings> apiSettings)
+        public CartController(IHttpClientFactory httpClientFactory, IOptions<ApiSettings> apiSettings)
         {
-            _httpClient = httpClient;
-            _apiBaseUrl = apiSettings.Value.BaseUrl;
+            _httpClientFactory = httpClientFactory;
+            _cartApiBaseUrl = apiSettings.Value.CartApiBaseUrl;
         }
 
         // Display the cart by fetching it from the API
         public async Task<IActionResult> Index()
         {
-            var cartItems = await _httpClient.GetFromJsonAsync<List<CartItem>>($"{_apiBaseUrl}/cart");
-            var cartTotal = cartItems?.Sum(item => item.Product.Price * item.Quantity) ?? 0;
-            ViewBag.CartTotal = cartTotal;
+            try
+            {
+                var cartClient = _httpClientFactory.CreateClient("CartApiClient");
 
-            return View(cartItems);
+                // Fetch cart items from the Cart API
+                var cartItems = await cartClient.GetFromJsonAsync<List<CartItem>>("/cart");
+
+                // Calculate the total cost
+                var cartTotal = cartItems?.Sum(item => item.Product.Price * item.Quantity) ?? 0;
+                ViewBag.CartTotal = cartTotal;
+
+                return View(cartItems);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (e.g., using ILogger)
+                TempData["ErrorMessage"] = "An error occurred while fetching your cart.";
+                return RedirectToAction("Index", "Home");
+            }
         }
+
 
         // Remove an item from the cart via the API
         // Remove an item from the cart via the API
         [HttpPost]
         public async Task<IActionResult> RemoveFromCart(int id)
         {
-            var response = await _httpClient.DeleteAsync($"{_apiBaseUrl}/cart/{id}");            
-            if (response.IsSuccessStatusCode)
+            try
             {
-                return RedirectToAction("Index");  // Refresh the cart page
+                var cartClient = _httpClientFactory.CreateClient("CartApiClient");
+
+                var response = await cartClient.DeleteAsync($"/cart/{id}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("Index");  // Refresh the cart page
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Failed to remove the item from the cart.";
+                    return RedirectToAction("Index");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return StatusCode((int)response.StatusCode, "Error removing product from cart");
+                // Log the exception
+                TempData["ErrorMessage"] = "An error occurred while removing the item.";
+                return RedirectToAction("Index");
             }
         }
+
 
     }
 }

@@ -18,8 +18,15 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
 
 
-// Register HttpClient for consuming API
-builder.Services.AddHttpClient();
+builder.Services.AddHttpClient("ProductApiClient", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:ProductApiBaseUrl"]);
+});
+
+builder.Services.AddHttpClient("CartApiClient", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:CartApiBaseUrl"]);
+});
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
