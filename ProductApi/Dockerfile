@@ -16,7 +16,7 @@ RUN dotnet publish -c Release -o /app/publish
 # Use the official ASP.NET Core runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 
-# Set the working directory inside the runtime container
+# Set the working directory inside the runtime container.
 WORKDIR /app
 
 # Copy the published output from the build stage
