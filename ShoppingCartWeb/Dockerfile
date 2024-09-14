@@ -13,7 +13,8 @@ RUN dotnet restore ./ShoppingCartWeb/ShoppingCartWeb.csproj
 COPY ShoppingCartWeb/. ./ShoppingCartWeb/
 
 # Build the app in Release mode
-RUN dotnet publish ./ShoppingCartWeb/ShoppingCartWeb.csproj -c Release -o out
+WORKDIR /app/ShoppingCartWeb
+RUN dotnet publish -c Release -o /app/out
 
 # Use the official .NET 8 ASP.NET Core runtime image for the app
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
