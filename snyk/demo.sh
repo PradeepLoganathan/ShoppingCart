@@ -40,7 +40,9 @@ jq '.summary' scan-results.json
 snyk code test --severity-threshold=low --sarif --sarif-file-output=snyk-code-results.sarif 
 
 
-## container test
+##----------------------------------------------------------------------##
+## container test                                                       ##
+##----------------------------------------------------------------------##
 
 snyk container test pradeepl/shoppingcartapi:latest --file=Dockerfile --sbom-file-output=my-image-sbom.json
 
@@ -49,8 +51,11 @@ snyk container test pradeepl/shoppingcartapi:latest --file=Dockerfile --sarif > 
 snyk container test pradeepl/shoppingcartapi:latest --file=Dockerfile --json > vulnerabilities.json
 
 
+##----------------------------------------------------------------------##
+## IaC test                                                             ##
+##----------------------------------------------------------------------##
 
-## IaC test
+snyk iac test --json --json-file-output=vuln.json
 
-snyk iac test
 
+snyk iac test --sarif --sarif-file-output=vuln.sarif

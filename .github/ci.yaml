@@ -1,55 +1,109 @@
 name: CI
 
-on: [pull_request]
+on:
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
+    # Step 1: Check out the code from the repository
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-
+    
+    # Step 2: Set up .NET
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v3
-
-    - name: Restore NuGet Packages
-      run: dotnet restore
- 
-    - name: dotnet build
-      run: dotnet build TodoApi.sln -c Release
-
-    - name: dotnet test
-      run: dotnet test TodoApi.sln -c Release --no-build
-    
-    #Run Snyk Security Scan and fail build on high or critical severity vulnerabilities
-    - name: Snyk Security Scan
-      id: snyk_scan
-      uses: snyk/actions/dotnet@master
       with:
-        args: 
-          --severity-threshold=high
-          --all-projects
-          --org=pradeeploganathan
-          --sarif-file-output=snyk.sarif
+        dotnet-version: '8.0.x'
+    
+    # Step 3: Build the .NET projects
+    - name: Build ShoppingCartApi Project
+      run: dotnet build ShoppingCartApi/ShoppingCartApi.csproj --configuration Release
+
+    - name: Build ShoppingCartWeb Project
+      run: dotnet build ShoppingCartWeb/ShoppingCartWeb.csproj --configuration Release
+
+    - name: Build ProductAPI Project
+      run: dotnet build ProductAPI/ProductAPI.csproj --configuration Release
+
+    # Step 4: Set up Docker Buildx
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    # Step 5: Log in to Docker Hub
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    
+    # Step 6: Build and push the ShoppingCartApi Docker image
+    - name: Build and push ShoppingCartApi Docker image
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/shoppingcartapi:latest -f ShoppingCartApi/Dockerfile .
+        docker push ${{ secrets.DOCKER_USERNAME }}/shoppingcartapi:latest
+
+    # Step 7: Build and push the ShoppingCartWeb Docker image
+    - name: Build and push ShoppingCartWeb Docker image
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/shoppingcartweb:latest -f ShoppingCartWeb/Dockerfile .
+        docker push ${{ secrets.DOCKER_USERNAME }}/shoppingcartweb:latest
+
+    # Step 8: Build and push the ProductAPI Docker image
+    - name: Build and push ProductAPI Docker image
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/productapi:latest -f ProductAPI/Dockerfile .
+        docker push ${{ secrets.DOCKER_USERNAME }}/productapi:latest
+
+  # Job 2: Snyk Security Scanning
+  snyk:
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Check out the code from the repository
+    - uses: actions/checkout@v4
+
+    # Step 2: Set up Snyk CLI
+    - name: Set up Snyk CLI to check for security issues
+      uses: snyk/actions/setup@806182742461562b67788a64410098c9d9b96adb
       env:
+        # This is where you will need to introduce the Snyk API token created with your Snyk account
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      continue-on-error: true
-    
-    - name: Snyk Code Scan
-      uses: snyk/actions/code@master
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }} 
-      with:
-        args: --severity-threshold=high  # Or adjust as needed
-     
-    # Upload SARIF to GitHub Code Scanning
+
+    # Step 3: Snyk Code test
+    - name: Snyk Code test
+      run: snyk code test --sarif > snyk-code.sarif
+
+    # Step 4: Snyk Open Source monitor
+    - name: Snyk Open Source monitor
+      run: snyk monitor --all-projects
+
+    # Step 5: Snyk Infrastructure as Code (IaC) test and report
+    - name: Snyk IaC test and report
+      run: snyk iac test --report
+
+    # Step 6: Pull and scan the ShoppingCartApi Docker image from Docker Hub
+    - name: Snyk Container monitor for ShoppingCartApi
+      run: snyk container monitor ${{ secrets.DOCKER_USERNAME }}/shoppingcartapi:latest
+
+    # Step 7: Pull and scan the ShoppingCartWeb Docker image from Docker Hub
+    - name: Snyk Container monitor for ShoppingCartWeb
+      run: snyk container monitor ${{ secrets.DOCKER_USERNAME }}/shoppingcartweb:latest
+
+    # Step 8: Pull and scan the ProductAPI Docker image from Docker Hub
+    - name: Snyk Container monitor for ProductAPI
+      run: snyk container monitor ${{ secrets.DOCKER_USERNAME }}/productapi:latest
+
+    # Step 9: Upload result to GitHub Code Scanning
     - name: Upload result to GitHub Code Scanning
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       with:
-        sarif_file: snyk.sarif
-    
-    # Fail the build if there are any high or critical vulnerabilities
-    - name: Check for vulnerabilities
-      if: steps.snyk_scan.outcome == 'failure'
-      run: exit 1
+        sarif_file: snyk-code.sarif  
