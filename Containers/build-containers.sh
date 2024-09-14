@@ -1,3 +1,5 @@
+#build and push containers
+
 docker build -t pradeepl/productapi:latest -f ProductApi/Dockerfile .
 
 docker build -t pradeepl/shoppingcartapi:latest -f ShoppingCartApi/Dockerfile .
