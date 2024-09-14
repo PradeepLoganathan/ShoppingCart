@@ -7,7 +7,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: yourdomain.com
+  - host: myshoppingcartdomain.com
     http:
       paths:
       - path: /api
