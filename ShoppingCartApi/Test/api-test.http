@@ -12,7 +12,7 @@ Accept: application/json
 GET {{baseUrl}}/products/1
 Accept: application/json
 
-###
+####
 
 ### Add a new product (Laptop - Dell XPS 13)
 POST {{baseUrl}}/products
