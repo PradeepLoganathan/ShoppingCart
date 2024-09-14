@@ -90,7 +90,7 @@ jobs:
           sarif_file: snyk-open-source.sarif
 
       - name: Snyk Container Test
-        run: snyk container test pradeepl/shoppingcartapi:latest --file=ShoppingCartApi/Dockerfile --sarif-file-output=snyk-container.sarif
+        run: snyk container test ${{ secrets.DOCKER_USERNAME }}/shoppingcartapi:latest --file=ShoppingCartApi/Dockerfile --sarif-file-output=snyk-container.sarif
 
       - name: Upload Snyk Container results to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
