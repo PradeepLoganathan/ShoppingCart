@@ -2,29 +2,28 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 # Set the working directory inside the container
-WORKDIR /app
+WORKDIR /src
 
-# Copy the .csproj file and restore dependencies
-COPY ShoppingCartApi/*.csproj ./ShoppingCartApi/
-RUN dotnet restore ShoppingCartApi/ShoppingCartApi.csproj
+# Copy csproj and restore as distinct layers
+COPY ShoppingCartApi/ShoppingCartApi.csproj ./ShoppingCartApi/
+RUN dotnet restore ./ShoppingCartApi/ShoppingCartApi.csproj
 
-# Copy the rest of the application source code
+# Copy everything else and build
 COPY ShoppingCartApi/. ./ShoppingCartApi/
+WORKDIR /src/ShoppingCartApi
+RUN dotnet publish -c Release -o /app/out
 
-# Build the app in Release mode
-RUN dotnet publish ShoppingCartApi/ShoppingCartApi.csproj -c Release -o out
-
-# Use the official .NET 8 ASP.NET Core runtime image for the app
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+# Use the official ASP.NET Core runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 
 # Set the working directory inside the runtime container
 WORKDIR /app
 
-# Copy the output of the build step into the runtime container
-COPY --from=build /app/ShoppingCartApi/out .
+# Copy the published output from the build stage
+COPY --from=build /app/out .
 
-# Expose the port on which the API will run
+# Expose port 80
 EXPOSE 80
 
-# Set the entry point for the application
+# Start the application
 ENTRYPOINT ["dotnet", "ShoppingCartApi.dll"]
