@@ -17,6 +17,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
 
       - name: Install Snyk CLI
         uses: snyk/actions/setup@master
@@ -33,60 +38,30 @@ jobs:
           ls -la
           echo "Subdirectory: ProductApi"
           ls -la ProductApi
-
+      
       # Run Snyk Open Source Scan
-      - name: Restore and Scan - ProductApi
-        run: |
+      - name: Snyk Open Source Scan - ProductApi
+        run:  |
           cd ProductApi
           dotnet restore ProductApi.csproj
-          snyk test --file=ProductApi.csproj --org=pradeep-snyk-demo --severity-threshold=high --package-manager=nuget
+          snyk test --org=pradeep-snyk-demo --severity-threshold=low --sarif-file-output=ProductApi.sarif
+      
+      # Restore and Scan ShoppingCartApi
+      - name: Snyk Open Source Scan - ShoppingCartApi
+        run: |
+          cd ShoppingCartApi
+          dotnet restore ShoppingCartApi.csproj
+          snyk test --org=pradeep-snyk-demo --severity-threshold=low --sarif-file-output=ShoppingCartApi.sarif
 
-
-  build:
-    runs-on: ubuntu-latest
-    needs: snyk
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
+      # Restore and Scan ShoppingCartWeb
+      - name: Snyk Open Source Scan - ShoppingCartWeb
+        run: |
+          cd ShoppingCartWeb
+          dotnet restore ShoppingCartWeb.csproj
+          snyk test --org=pradeep-snyk-demo --severity-threshold=low --sarif-file-output=ShoppingCartWeb.sarif
+      
+      - name: Upload SARIF to GitHub - ShoppingCartWeb
+        uses: github/codeql-action/upload-sarif@v2
         with:
-          dotnet-version: '8.0.x'
-
-      - name: Build ShoppingCartApi Project
-        run: dotnet build ShoppingCartApi/ShoppingCartApi.csproj --configuration Release
-
-      - name: Build ShoppingCartWeb Project
-        run: dotnet build ShoppingCartWeb/ShoppingCartWeb.csproj --configuration Release
-
-      - name: Build ProductApi Project
-        run: dotnet build ProductApi/ProductApi.csproj --configuration Release
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build and push ShoppingCartApi Docker image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/shoppingcartapi:latest \
-            -f ShoppingCartApi/Dockerfile .
-          docker push ${{ secrets.DOCKER_USERNAME }}/shoppingcartapi:latest
-
-      - name: Build and push ShoppingCartWeb Docker image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/shoppingcartweb:latest \
-            -f ShoppingCartWeb/Dockerfile .
-          docker push ${{ secrets.DOCKER_USERNAME }}/shoppingcartweb:latest
-
-      - name: Build and push ProductApi Docker image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/productapi:latest \
-            -f ProductApi/Dockerfile .
-          docker push ${{ secrets.DOCKER_USERNAME }}/productapi:latest
+          sarif_file: ShoppingCartWeb/snyk-shoppingcartweb.sarif
+          token: ${{ secrets.GITHUB_TOKEN }}
