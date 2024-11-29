@@ -66,5 +66,5 @@ jobs:
       - name: Upload SARIF to GitHub - ShoppingCartWeb
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: ShoppingCartWeb/snyk-shoppingcartweb.sarif
+          sarif_file: ShoppingCartWeb/ShoppingCartWeb.sarif
           token: ${{ secrets.GITHUB_TOKEN }}
