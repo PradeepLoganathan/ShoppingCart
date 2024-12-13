@@ -7,48 +7,60 @@ npm install -g snyk
 snyk auth
 
 ##-----------------------------------##
-## Basic Vulnerability Scan:         ##
-## Focuses on Open Source Security. It analyzes your project's dependencies (libraries, packages) ##
-## listed in manifest files like package.json, pom.xml, or .csproj to identify known vulnerabilities. ##
-## It checks if any of the versions you're using have reported security flaws. ##
+# Let’s start by checking for vulnerabilities in our dependencies.
+# Using snyk test, we scan the ShoppingCartApi project and identify all known vulnerabilities
+# in our open-source libraries.
+# Then, we parse the results to understand severity, affected packages, and possible remediations
 ##-----------------------------------##
 
-# can be low|medium|high|critical
+# Navigate to the project directory
+cd ShoppingCartApi
+
+# Perform a basic vulnerability scan on dependencies
 snyk test --dev --json --severity-threshold=low --target-framework=net8.0 > scan-results.json
 
-# List all vulnerabilities with basic information
+# Parse and analyze results
 jq '.vulnerabilities[] | {id: .id, title: .title, severity: .severity, packageName: .packageName, version: .version}' scan-results.json
 
-# Filter and list only high-severity vulnerabilities
+# Filter for high-severity vulnerabilities
 jq '.vulnerabilities[] | select(.severity == "high") | {id: .id, title: .title, packageName: .packageName, version: .version}' scan-results.json
 
-# List CVE identifiers for each vulnerability
+# List CVEs for each vulnerability
 jq '.vulnerabilities[] | {id: .id, cve: .identifiers.CVE[]}' scan-results.json
 
-#List packages with available upgrades to fix vulnerabilities
+# Identify available upgrades for vulnerable packages
 jq '.remediation.upgrade | to_entries[] | {package: .key, upgradeTo: .value.upgradeTo}' scan-results.json
 
-# Provide a summary of the number of vulnerable paths
+# Provide a summary
 jq '.summary' scan-results.json
 
 ##----------------------------------------------------------------------##
-## Code Scan: SAST                                                      ##
-## SARIF stands for Static Analysis Results Interchange Format.         ##
-## Generate the Sarif file and view for remediations                    ##
+# Next, let’s analyze the source code for vulnerabilities using SAST 
+# (Static Application Security Testing).
+# This scan will identify issues like SQL injection, XSS, or insecure coding patterns.
+# The results are output in SARIF format, perfect for integrating with tools like GitHub
 ##----------------------------------------------------------------------##
 
-snyk code test --severity-threshold=low --sarif --sarif-file-output=snyk-code-results.sarif 
+# Scan code for vulnerabilities and generate a SARIF file
+snyk code test --severity-threshold=low --sarif --sarif-file-output=snyk-code-results.sarif
+
+# (Optional) Use tools like GitHub's SARIF viewer to analyze the results
+
 
 
 ##----------------------------------------------------------------------##
-## container test                                                       ##
+# Let’s shift focus to securing our containerized application.
+# Using snyk container test, we identify vulnerabilities in the Docker image,
+# analyze its SBOM (Software Bill of Materials), and export results for further integration.                                                      ##
 ##----------------------------------------------------------------------##
 
-snyk container test pradeepl/shoppingcartapi:latest --file=Dockerfile --sbom-file-output=my-image-sbom.json
+snyk container test pradeepl/shoppingcartapi:latest --file=./ShoppingCartApi/Dockerfile --sbom-file-output=my-image-sbom.json --json > snyk-container-results.json
+
+jq '.vulnerabilities[] | {id: .id, title: .title, severity: .severity, packageName: .packageName, version: .version}' snyk-container-results.json 
+
 
 snyk container test pradeepl/shoppingcartapi:latest --file=Dockerfile --sarif > vulnerabilities.sarif
 
-snyk container test pradeepl/shoppingcartapi:latest --file=Dockerfile --json > vulnerabilities.json
 
 
 ##----------------------------------------------------------------------##

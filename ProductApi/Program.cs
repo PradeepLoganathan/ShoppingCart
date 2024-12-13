@@ -136,7 +136,7 @@ app.MapDelete("/products/{id}", async (int id, ProductContext db) =>
 // // Hard coded credentials
 // app.MapGet("/api-key", () =>
 // {
-//     // Vulnerable: Hardcoded API key
+//     Vulnerable: Hardcoded API key
 //     var apiKey = "12345-ABCDE";
 //     return Results.Ok($"API key is: {apiKey}");
 // }).WithTags("Insecure");
