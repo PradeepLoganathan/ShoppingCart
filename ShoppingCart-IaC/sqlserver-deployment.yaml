@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sqlserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sqlserver
+  template:
+    metadata:
+      labels:
+        app: sqlserver
+    spec:
+      containers:
+      - name: sqlserver
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        # Environment variables for SQL Server configuration
+        env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: SA_PASSWORD
+          value: "Afhk#^98^&"  # Replace with a strong password
+        ports:
+        - containerPort: 1433
+        # Volumes for persistent storage (optional - depending on your needs)
+        # volumeMounts:
+        # - name: sqlserver-data
+        #   mountPath: /var/opt/mssql/data
