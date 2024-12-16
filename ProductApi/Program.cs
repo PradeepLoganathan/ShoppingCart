@@ -88,63 +88,70 @@ app.MapGet("/products/insecure/{productName}", async (string productName, Produc
 {
     // Insecure: Directly concatenate user input into an SQL query (SQL Injection)
     var query = $"SELECT * FROM Products WHERE Name = '{productName}'";  // Vulnerable to SQL Injection
-    var products = await db.Products
-        .FromSqlRaw(query)
-        .ToListAsync();
-
-    return products.Any() ? Results.Ok(products) : Results.NotFound();
+    var products = db.Products.FromSqlRaw(query).ToListAsync();
+    return Results.Ok(products);
 }).WithTags("Products");
 
 
 //Causes Command Injection
-// app.MapGet("/run/{command}", (string command) =>
-// {
-//     // Vulnerable: Directly passing user input to system commands
-//     System.Diagnostics.Process.Start("cmd.exe", $"/c {command}");
-//     return Results.Ok($"Executed command: {command}");
-// }).WithTags("Insecure");
+app.MapGet("/run/{command}", (string command) =>
+{
+    // Vulnerable: Directly passing user input to system commands
+    System.Diagnostics.Process.Start("cmd.exe", $"/c {command}");
+    return Results.Ok($"Executed command: {command}");
+}).WithTags("Insecure");
 
-// // unvalidated redirects and forwards
-// app.MapGet("/redirect", (string url) =>
-// {
-//     // Vulnerable: User input directly used in a redirect
-//     return Results.Redirect(url);
-// }).WithTags("Insecure");
+// unvalidated redirects and forwards
+app.MapGet("/redirect", (string url) =>
+{
+    // Vulnerable: User input directly used in a redirect
+    return Results.Redirect(url);
+}).WithTags("Insecure");
 
-// // Causes cross site scripting - xss
-// app.MapGet("/xss", (string input) =>
-// {
-//     // Vulnerable: Outputting unsanitized user input directly to the webpage
-//     return Results.Content($"<html><body><h1>{input}</h1></body></html>", "text/html");
-// }).WithTags("Insecure");
+// Causes cross site scripting - xss
+app.MapGet("/xss", (string input) =>
+{
+    // Vulnerable: Outputting unsanitized user input directly to the webpage
+    return Results.Content($"<html><body><h1>{input}</h1></body></html>", "text/html");
+}).WithTags("Insecure");
 
-// // Insecure deserialization
-// app.MapPost("/deserialize", (HttpRequest request) =>
-// {
-//     using (var reader = new StreamReader(request.Body))
-//     {
-//         var serializedObject = reader.ReadToEnd();
-//         var obj = Newtonsoft.Json.JsonConvert.DeserializeObject(serializedObject);
-//         // Vulnerable: Deserializing untrusted input
-//         return Results.Ok(obj);
-//     }
-// }).WithTags("Insecure");
+// Insecure deserialization
+app.MapPost("/deserialize", (HttpRequest request) =>
+{
+    using (var reader = new StreamReader(request.Body))
+    {
+        var serializedObject = reader.ReadToEnd();
+        var obj = Newtonsoft.Json.JsonConvert.DeserializeObject(serializedObject);
+        // Vulnerable: Deserializing untrusted input
+        return Results.Ok(obj);
+    }
+}).WithTags("Insecure");
 
-// // sensitive data exposure
-// app.MapPost("/login", (string username, string password) =>
-// {
-//     // Vulnerable: Storing passwords in plain text or logging sensitive information
-//     Console.WriteLine($"Logging in user: {username} with password: {password}");
-//     return Results.Ok("Login attempt");
-// }).WithTags("Insecure");
+// sensitive data exposure
+app.MapPost("/login", (string username, string password) =>
+{
+    // Vulnerable: Storing passwords in plain text or logging sensitive information
+    Console.WriteLine($"Logging in user: {username} with password: {password}");
+    return Results.Ok("Login attempt");
+}).WithTags("Insecure");
 
-// // Hard coded credentials
-// app.MapGet("/api-key", () =>
-// {
-//     Vulnerable: Hardcoded API key
-//     var apiKey = "12345-ABCDE";
-//     return Results.Ok($"API key is: {apiKey}");
-// }).WithTags("Insecure");
+// Hard coded credentials
+app.MapGet("/api-key", () =>
+{
+    //Vulnerable: Hardcoded API key
+    var apiKey = "12345-ABCDE";
+    return Results.Ok($"API key is: {apiKey}");
+}).WithTags("Insecure");
+
+// Example of unused variable
+string unusedVariable = "This is not used";
+
+// Example of an unused function
+void UnusedFunction()
+{
+    Console.WriteLine("This function is never called.");
+}
+
 
 #endregion
 

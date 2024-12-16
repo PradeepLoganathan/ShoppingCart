@@ -6,16 +6,15 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <!-- <PackageReference Include="HtmlSanitizer" Version="5.0.371" /> -->
-    <!-- <PackageReference Include="DotNetNuke" Version="9.1.0" /> -->
-  </ItemGroup>
+<ItemGroup>
+  <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="6.0.8" /> <!-- Older versions might have vulnerabilities -->
+  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0" /> <!-- Known older vulnerabilities -->
+  <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.0" /> <!-- Known older vulnerabilities -->
+  <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" /> <!-- Vulnerable to ReDoS -->
+  <PackageReference Include="Newtonsoft.Json" Version="12.0.2" /> <!-- Known CVEs in earlier versions -->
+  <PackageReference Include="System.Net.Http" Version="4.1.0" /> <!-- Known vulnerable version -->
+  <PackageReference Include="HtmlSanitizer" Version="4.0.217" /> <!-- Contains an XSS vulnerability -->
+</ItemGroup>
+
 
 </Project>
