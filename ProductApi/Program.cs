@@ -18,7 +18,9 @@ builder.Services.AddCors(options =>
 
 
 // Add services for EF Core and Swagger
-builder.Services.AddDbContext<ProductContext>(opt => opt.UseInMemoryDatabase("ProductDb"));
+//builder.Services.AddDbContext<ProductContext>(opt => opt.UseInMemoryDatabase("ProductDb"));
+builder.Services.AddDbContext<ProductContext>(options =>
+    options.UseSqlServer("Server=sqlserver-service,1433;Database=ProductDb;User Id=SA;Password=Afhk#^98^&;TrustServerCertificate=True;MultipleActiveResultSets=true;"));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -31,6 +33,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ProductContext>();
+    dbContext.Database.EnsureCreated();
     ProductContext.SeedData(dbContext); // Call the seed method
 }
 
@@ -42,7 +45,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 // Redirect root "/" to "/swagger"
-app.MapGet("/", () => Results.Redirect("/swagger"));
+app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 
 // === Product Endpoints (Grouped under 'Products') === //
 
@@ -81,14 +84,16 @@ app.MapDelete("/products/{id}", async (int id, ProductContext db) =>
 
 #region insecure
 // Causes SQL Injection
-// app.MapGet("/products/insecure/{productName}", async (string productName, ShoppingCartContext db) =>
-// {
-//     // Insecure: Directly concatenate user input into an SQL query (SQL Injection)
-//     var query = $"SELECT * FROM Products WHERE Name = '{productName}'";  // Vulnerable to SQL Injection
-//     var products = await db.Products.FromSqlRaw(query).ToListAsync();
+app.MapGet("/products/insecure/{productName}", async (string productName, ProductContext db) =>
+{
+    // Insecure: Directly concatenate user input into an SQL query (SQL Injection)
+    var query = $"SELECT * FROM Products WHERE Name = '{productName}'";  // Vulnerable to SQL Injection
+    var products = await db.Products
+        .FromSqlRaw(query)
+        .ToListAsync();
 
-//     return products.Any() ? Results.Ok(products) : Results.NotFound();
-// }).WithTags("Products");
+    return products.Any() ? Results.Ok(products) : Results.NotFound();
+}).WithTags("Products");
 
 
 //Causes Command Injection
