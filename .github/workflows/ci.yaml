@@ -1,74 +1,74 @@
----
-name: CI
+# ---
+# name: CI
 
-on:
-  pull_request:
-    branches:
-      - main
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+# on:
+#   pull_request:
+#     branches:
+#       - main
+#   push:
+#     branches:
+#       - main
+#   workflow_dispatch:
 
-permissions:
-  contents: write
-  security-events: write
+# permissions:
+#   contents: write
+#   security-events: write
 
-jobs:
-  snyk:
-    runs-on: ubuntu-latest
+# jobs:
+#   snyk:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
       
-      - name: Install .NET SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.0.x'
+#       - name: Install .NET SDK
+#         uses: actions/setup-dotnet@v3
+#         with:
+#           dotnet-version: '8.0.x'
 
-      - name: Install Snyk CLI
-        uses: snyk/actions/setup@master
+#       - name: Install Snyk CLI
+#         uses: snyk/actions/setup@master
 
-      - name: Authenticate with Snyk
-        run: snyk auth ${{ secrets.SNYK_TOKEN }}
+#       - name: Authenticate with Snyk
+#         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      # Debug: Show directory structure
-      - name: List Directory Structure
-        run: |
-          echo "Current Directory:"
-          pwd
-          echo "Contents:"
-          ls -la
-          echo "Subdirectory: ProductApi"
-          ls -la ProductApi
+#       # Debug: Show directory structure
+#       - name: List Directory Structure
+#         run: |
+#           echo "Current Directory:"
+#           pwd
+#           echo "Contents:"
+#           ls -la
+#           echo "Subdirectory: ProductApi"
+#           ls -la ProductApi
       
-      # Run Snyk Open Source Scan
-      - name: Snyk Open Source Scan - ProductApi
-        run:  |
-          cd ProductApi
-          dotnet restore ProductApi.csproj
-          snyk test --org=pradeep-snyk-demo --severity-threshold=low --sarif-file-output=ProductApi.sarif
+#       # Run Snyk Open Source Scan
+#       - name: Snyk Open Source Scan - ProductApi
+#         run:  |
+#           cd ProductApi
+#           dotnet restore ProductApi.csproj
+#           snyk test --org=pradeep-snyk-demo --severity-threshold=low --sarif-file-output=ProductApi.sarif
       
-      # Restore and Scan ShoppingCartApi
-      - name: Snyk Open Source Scan - ShoppingCartApi
-        run: |
-          cd ShoppingCartApi
-          dotnet restore ShoppingCartApi.csproj
-          snyk test --org=pradeep-snyk-demo --severity-threshold=low --sarif-file-output=ShoppingCartApi.sarif
+#       # Restore and Scan ShoppingCartApi
+#       - name: Snyk Open Source Scan - ShoppingCartApi
+#         run: |
+#           cd ShoppingCartApi
+#           dotnet restore ShoppingCartApi.csproj
+#           snyk test --org=pradeep-snyk-demo --severity-threshold=low --sarif-file-output=ShoppingCartApi.sarif
 
-      # Restore and Scan ShoppingCartWeb
-      - name: Snyk Open Source Scan - ShoppingCartWeb
-        run: |
-          cd ShoppingCartWeb
-          dotnet restore ShoppingCartWeb.csproj
-          snyk test --org=pradeep-snyk-demo --severity-threshold=low --sarif-file-output=ShoppingCartWeb.sarif
+#       # Restore and Scan ShoppingCartWeb
+#       - name: Snyk Open Source Scan - ShoppingCartWeb
+#         run: |
+#           cd ShoppingCartWeb
+#           dotnet restore ShoppingCartWeb.csproj
+#           snyk test --org=pradeep-snyk-demo --severity-threshold=low --sarif-file-output=ShoppingCartWeb.sarif
       
-      - name: List files in ShoppingCartWeb
-        run: ls -la ShoppingCartWeb
+#       - name: List files in ShoppingCartWeb
+#         run: ls -la ShoppingCartWeb
       
-      - name: Upload SARIF to GitHub - ShoppingCartWeb
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: ShoppingCartWeb/ShoppingCartWeb.sarif
-          token: ${{ secrets.GITHUB_TOKEN }}
+#       - name: Upload SARIF to GitHub - ShoppingCartWeb
+#         uses: github/codeql-action/upload-sarif@v2
+#         with:
+#           sarif_file: ShoppingCartWeb/ShoppingCartWeb.sarif
+#           token: ${{ secrets.GITHUB_TOKEN }}
