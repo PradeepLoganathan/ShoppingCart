@@ -61,7 +61,7 @@ jq '.vulnerabilities[] | {id: .id, title: .title, severity: .severity, packageNa
 
 snyk container test pradeepl/shoppingcartapi:latest --file=Dockerfile --sarif > vulnerabilities.sarif
 
-
+snyk container sbom --format=cyclonedx1.5+json pradeepl/shoppingcartapi:latest | jq
 
 ##----------------------------------------------------------------------##
 ## IaC test                                                             ##
@@ -71,3 +71,5 @@ snyk iac test --json --json-file-output=vuln.json
 
 
 snyk iac test --sarif --sarif-file-output=vuln.sarif
+
+snyk iac test ./ShoppingCart-IaC/deployment-api.yaml 
