@@ -92,6 +92,13 @@ app.MapGet("/products/insecure/{productName}", async (string productName, Produc
     return Results.Ok(products);
 }).WithTags("Products");
 
+//Causes Command Injection
+app.MapGet("/run/{command}", (string command) =>
+{
+    // Vulnerable: Directly passing user input to system commands
+    System.Diagnostics.Process.Start("cmd.exe", $"/c {command}");
+    return Results.Ok($"Executed command: {command}");
+}).WithTags("Insecure");
 
 //Causes Command Injection
 app.MapGet("/run/{command}", (string command) =>
