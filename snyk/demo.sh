@@ -55,6 +55,7 @@ snyk code test --severity-threshold=low --sarif --sarif-file-output=snyk-code-re
 ##----------------------------------------------------------------------##
 
 snyk container test pradeepl/shoppingcartapi:latest --file=./ShoppingCartApi/Dockerfile --sbom-file-output=my-image-sbom.json --json > snyk-container-results.json
+snyk container test pradeepl/productapi-vuln --file=./ProductApi/Dockerfile.vulnerable
 
 jq '.vulnerabilities[] | {id: .id, title: .title, severity: .severity, packageName: .packageName, version: .version}' snyk-container-results.json 
 
