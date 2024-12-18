@@ -55,3 +55,5 @@ az consumption usage list --start-date $(date +%Y-%m-%d) --end-date $(date +%Y-%
 
 # Output the current context to verify the cluster access
 kubectl config get-contexts
+
+#check costs and shutdown cluster
